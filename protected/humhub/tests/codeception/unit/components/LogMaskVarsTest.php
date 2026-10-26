@@ -96,7 +96,7 @@ class LogMaskVarsTest extends Unit
             $targetConfig = $config['components']['log']['targets'][$class];
             unset($targetConfig['class']);
 
-            $target = new class($targetConfig) extends FileTarget {
+            $target = new class ($targetConfig) extends FileTarget {
                 public function context(): string
                 {
                     return $this->getContextMessage();
