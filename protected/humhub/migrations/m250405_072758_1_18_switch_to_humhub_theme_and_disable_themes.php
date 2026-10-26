@@ -2,6 +2,7 @@
 
 use humhub\components\InstallationState;
 use humhub\helpers\ThemeHelper;
+use humhub\services\ModuleService;
 use humhub\modules\user\helpers\LoginBackgroundImageHelper;
 use yii\db\Migration;
 
@@ -20,6 +21,7 @@ class m250405_072758_1_18_switch_to_humhub_theme_and_disable_themes extends Migr
         $settingsManager = Yii::$app->settings;
 
         // Copy Login Background image
+        /* Migration disabled after v.19
         $oldThemeBasePath = $settingsManager->get('theme');
         foreach (['login-bg.jpg', 'login-bg.png'] as $loginBgFile) {
             $oldFile = $oldThemeBasePath . DIRECTORY_SEPARATOR . 'img' . DIRECTORY_SEPARATOR . $loginBgFile;
@@ -28,6 +30,7 @@ class m250405_072758_1_18_switch_to_humhub_theme_and_disable_themes extends Migr
                 break;
             }
         }
+        */
 
         // Switch to HumHub theme
         $themeAfterMigration = 'HumHub';
@@ -102,14 +105,17 @@ class m250405_072758_1_18_switch_to_humhub_theme_and_disable_themes extends Migr
         // Uninstall the Theme Builder module1
         $moduleManager = Yii::$app->moduleManager;
         $themeBuilderModuleId = 'theme-builder';
-        if ($moduleManager->getModule($themeBuilderModuleId, false)) {
-            $moduleManager->removeModule($themeBuilderModuleId);
+        $themeBuilderModule = $moduleManager->getModule($themeBuilderModuleId, false);
+        if ($themeBuilderModule) {
+            (new ModuleService($themeBuilderModule))->remove();
         }
 
         // Loop over all /themes/* folder and rename all old theme folders to e.g. /themes/Example.bs3.old
         $themesPath = Yii::getAlias('@themes');
         foreach (ThemeHelper::getThemesByPath($themesPath) as $theme) {
             if ($theme->name === 'HumHub') {
+                // The webroot copy of the core theme is retired by m260918_112000 instead,
+                // which also repairs the theme setting this migration may have pointed at it
                 continue;
             }
             // Rename theme by adding .old

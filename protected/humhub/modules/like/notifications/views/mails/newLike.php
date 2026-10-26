@@ -1,10 +1,7 @@
 <?php
-/**
- * @link https://www.humhub.org/
- * @copyright Copyright (c) 2017 HumHub GmbH & Co. KG
- * @license https://www.humhub.com/licences
- */
+
 /* @var $this yii\web\View */
+
 /* @var $viewable humhub\modules\like\notifications\NewLike */
 /* @var $url string */
 /* @var $date string */
@@ -21,7 +18,7 @@ use humhub\modules\content\components\ContentContainerActiveRecord;
 use humhub\modules\notification\models\Notification;
 use humhub\widgets\mails\MailButtonList;
 
-$likedRecord = $viewable->getLikedRecord();
+$likedRecord = $viewable->source->getContentOwnerObject();
 ?>
 
 <?php $this->beginContent('@notification/views/layouts/mail.php') ?>
@@ -48,7 +45,9 @@ $likedRecord = $viewable->getLikedRecord();
                 <?=
                 MailButtonList::widget([
                     'buttons' => [
-                        humhub\widgets\mails\MailButton::widget(['url' => $url, 'text' => Yii::t('LikeModule.notifications', 'View Online')])
+                        humhub\widgets\mails\MailButton::widget(
+                            ['url' => $url, 'text' => Yii::t('LikeModule.notifications', 'View Online')]
+                        )
                     ]
                 ])
                 ?>

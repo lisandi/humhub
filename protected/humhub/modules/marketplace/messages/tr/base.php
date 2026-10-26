@@ -2,12 +2,6 @@
 
 return [
     '
-Module successfully disabled!
-' => 'Modül başarıyla devre dışı bırakıldı!',
-    '
-Module successfully enabled!
-' => 'Modül başarıyla etkinleştirildi!',
-    '
 No active Professional Edition license found!
 ' => 'Etkin Profesyonel Sürüm lisansı bulunamadı!',
     '
@@ -21,12 +15,6 @@ The license was successfully activated!
 The license was successfully removed!
 
 ' => 'Lisans başarıyla kaldırıldı!',
-    '--- Disable module: {moduleId} ---
-
-' => '--- Modülü devre dışı bırak: {moduleId} ---',
-    '--- Enable module: {moduleId} ---
-
-' => '--- Modülü etkinleştir: {moduleId} ---',
     '<strong>Activate</strong> your Professional Edition' => 'Profesyonel Sürümünüzü <strong>etkinleştirin</strong>',
     '<strong>General</strong> Settings' => '<strong>Genel</strong> Ayarlar',
     'A new update is available (HumHub %version%)!' => 'Yeni bir güncelleme mevcut (HumHub %version%)!',
@@ -39,13 +27,11 @@ The license was successfully removed!
     'Available Updates' => 'Mevcut Güncellemeler',
     'Buy' => 'Satın al',
     'Buy (%price%)' => 'Satın Al (%price%)',
+    'Cancel' => 'İptal',
     'Categories' => 'Kategoriler',
     'Changelog' => 'Değişiklik günlüğü',
-    'Community' => 'Toplum',
     'Configure' => 'Yapılandırma',
     'Could not connect to HumHub API!' => 'HumHub API\'sine bağlanılamadı!',
-    'Could not connect to HumHub API!
-' => 'HumHub API\'sine bağlanılamadı!',
     'Could not connect to license server!' => 'Lisans sunucusuna bağlanılamadı!',
     'Could not extract module!' => 'Modül çıkarılamadı!',
     'Could not find requested module!' => 'İstenen modül bulunamadı!',
@@ -61,13 +47,10 @@ The license was successfully removed!
     'Find all the modules you can add to your network in our HumHub Marketplace. Discover numerous add-ons and features that customize the software and give you the possibility to configure your network to your needs.' => 'Ağınıza ekleyebileceğiniz tüm modülleri HumHub Pazaryerimizde bulabilirsiniz. Yazılımı kişiselleştiren ve ağınızı ihtiyaçlarınıza göre yapılandırma olanağı sunan çok sayıda eklenti ve özelliği keşfedin.',
     'General Settings' => 'Genel Ayarlar',
     'Great!' => 'Harika!',
-    'If this Module is additionally marked as <strong>"Community"</strong> it is neither tested nor monitored by the HumHub project team.' => 'Bu Modül ayrıca <strong>"Topluluk"</strong> olarak işaretlenmişse HumHub proje ekibi tarafından ne test edilir ne de izlenir.',
     'Information' => 'Bilgi',
     'Install' => 'Yükle',
     'Installed' => 'Yüklendi',
     'Invalid module license key!' => 'Geçersiz modül lisans anahtarı!',
-    'Invalid module license key!
-' => 'Geçersiz modül lisans anahtarı!',
     'Latest version:' => 'Son versiyon:',
     'Learn more' => 'Daha fazla bilgi edin',
     'License Key:' => 'Lisans Anahtarı:',
@@ -82,8 +65,6 @@ The license was successfully removed!
     'Module <strong>enabled</strong>' => 'Modül <strong>etkinleştirildi</strong>',
     'Module directory %modulePath% is not writeable!' => 'Modül yolu %modulePath% yazılabilir değil!',
     'Module download failed! (%error%)' => 'Modül indirme başarısız! %error%',
-    'Module not found!
-' => 'Modül bulunamadı!',
     'More info' => 'Daha fazla bilgi',
     'New' => 'Yeni',
     'No compatible module version found!' => 'Hiçbir uyumlu modül sürümü bulundu!',
@@ -92,7 +73,6 @@ The license was successfully removed!
     'Ok' => 'Tamam',
     'Register' => 'Kayıt Ol',
     'Search' => 'Arama',
-    'Search...' => 'Arama...',
     'Tags' => 'Etiketler',
     'Third-party' => 'Üçüncü taraf',
     'Third-party disclaimer' => 'Üçüncü taraf reddi',
@@ -102,22 +82,26 @@ The license was successfully removed!
     'Add License' => '',
     'Advanced Module Search' => '',
     'All modules' => '',
+    'Are you sure you want to remove the license key?' => '',
+    'Buy non-curated module?' => '',
+    'Continue to checkout' => '',
+    'Description, Name, Keywords...' => '',
     'Edit License' => '',
+    'I understand and want to continue.' => '',
+    'If this Module is additionally marked as <strong>"Not curated"</strong>, it is not part of our curated selection and has not been reviewed by the HumHub team for quality, security or compatibility.' => '',
+    'Install anyway' => '',
+    'Install non-curated module?' => '',
     'Module <strong>installed</strong>' => '',
     'Module Administration' => '',
     'Module configuration' => '',
     'Module is <strong>installing...</strong>' => '',
     'Module license added!' => '',
-    'Module license added!
-' => '',
-    'Module license key cannot be empty!
-' => '',
-    'Module not found or enabled!
-' => '',
+    'Module options' => '',
     'No license key? Find out more about the {pro} or contact us.' => '',
     'No modules found.' => '',
     'No, thank you!' => '',
     'Not Installed' => '',
+    'Not curated' => '',
     'Official' => '',
     'PROFESSIONAL EDITION' => '',
     'Partner' => '',
@@ -125,8 +109,11 @@ The license was successfully removed!
     'Professional Edition is activated!' => '',
     'Remove license key' => '',
     'Save and update' => '',
+    'Show non-curated modules' => '',
+    'Show non-curated modules?' => '',
     'Stop updating' => '',
     'The HumHub project does not guarantee the functionality, quality or the continuous development of this Module.' => '',
+    'These modules are provided by independent partners and developers and are <strong>not part of our curated selection</strong>.<br><br>HumHub does not review them for quality, security or compatibility. Support, updates and licensing are handled by the respective provider.<br><br>Make sure you trust the source of a module before installing it.' => '',
     'Third-party Modules are not covered by Professional Edition agreements.' => '',
     'This Module was developed by a third-party.' => '',
     'Try other keywords or remove filters.' => '',
@@ -136,5 +123,8 @@ The license was successfully removed!
     'Well done! You have successfully installed and enabled the module!' => '',
     'Without category' => '',
     'Would you like to jump straight to it?' => '',
+    'Yes, show non-curated modules' => '',
+    'You are about to install <strong>{moduleName}</strong>, a module that is not part of our curated selection.<br><br>It is provided by an independent partner or developer and has not been reviewed by the HumHub team for quality, security or compatibility. Support, updates and licensing are handled by the respective provider.<br><br>Make sure you trust the source before continuing.' => '',
+    'You are about to purchase <strong>{moduleName}</strong>, a module that is not part of our curated selection.<br><br>It is provided by an independent partner or developer and has not been reviewed by the HumHub team for quality, security or compatibility. Support, updates and licensing are handled by the respective provider.<br><br>Make sure you trust the source before continuing.' => '',
     'Your HumHub installation is up to date!' => '',
 ];

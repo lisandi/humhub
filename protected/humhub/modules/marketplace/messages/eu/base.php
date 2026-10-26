@@ -2,12 +2,6 @@
 
 return [
     '
-Module successfully disabled!
-' => 'Modulua desaktibatuta dago!',
-    '
-Module successfully enabled!
-' => 'Moduluak arrakasta izan du!',
-    '
 No active Professional Edition license found!
 ' => 'Ez dago Argitalpen Profesionalerako lizentzia aktiborik!',
     '
@@ -21,12 +15,6 @@ The license was successfully activated!
 The license was successfully removed!
 
 ' => 'Lizentzia arrakastaz kendu dute!',
-    '--- Disable module: {moduleId} ---
-
-' => '--- Modulua desaktibatzea: {moduleId} ---',
-    '--- Enable module: {moduleId} ---
-
-' => '--- Gaitu modulua: {moduleId} ---',
     '<strong>Activate</strong> your Professional Edition' => '<strong>Aktibatu</strong> zure edizio profesionala',
     '<strong>General</strong> Settings' => 'Parametro <strong>orokorrak</strong>',
     'A new update is available (HumHub %version%)!' => 'Beste eguneratze bat dago (HumHub %version%)!',
@@ -40,13 +28,11 @@ The license was successfully removed!
     'Available Updates' => 'Eskuragarri dauden eguneratzeak',
     'Buy' => 'Erosi',
     'Buy (%price%)' => 'Erosi (%price%)',
+    'Cancel' => 'Deuseztatu',
     'Categories' => 'Kategoriak',
     'Changelog' => 'Changelog',
-    'Community' => 'Komunitate',
     'Configure' => 'Konfiguratu',
     'Could not connect to HumHub API!' => 'Ezin naiz HumHubeko APIra konektatu!',
-    'Could not connect to HumHub API!
-' => 'Ezin naiz HumHubeko APIra konektatu!',
     'Could not connect to license server!' => 'Ezin zen lizentzien zerbitzariarekin konektatu!',
     'Could not extract module!' => 'Ezin izan dut modulua atera!',
     'Could not find requested module!' => 'Ezin izan da aurkitu eskatutako modulua!',
@@ -62,13 +48,10 @@ The license was successfully removed!
     'Find all the modules you can add to your network in our HumHub Marketplace. Discover numerous add-ons and features that customize the software and give you the possibility to configure your network to your needs.' => 'Bilatu zure sareari gehitu ahal dizkiozun modulu guztiak gure HumHub Marketplacen. Softwarea pertsonalizatzen duten eta zure sarea zure beharretara konfiguratzeko aukera ematen duten osagarri eta ezaugarri ugari aurkitu.',
     'General Settings' => 'Ezarpen orokorrak',
     'Great!' => 'Ederki!',
-    'If this Module is additionally marked as <strong>"Community"</strong> it is neither tested nor monitored by the HumHub project team.' => 'Modulu hau, gainera, <strong>"Komunitate"</strong> gisa markatuta badago, ez da HumHub proiektu-taldeak egiaztatu eta gainbegiratzen.',
     'Information' => 'Informazioa',
     'Install' => 'Instalatu',
     'Installed' => 'Instalatua',
     'Invalid module license key!' => 'Modulu-lizentziaren gakoa ez da baliozkoa!',
-    'Invalid module license key!
-' => 'Modulu-lizentziaren gakoa ez da baliozkoa!',
     'Latest version:' => 'Azken bertsioa:',
     'Learn more' => 'Gehiago ikasi.',
     'License Key:' => 'Key lizentzia:',
@@ -88,14 +71,6 @@ The license was successfully removed!
     'Module download failed! (%error%)' => 'Moduluaren deskargak huts egin du! (%error%)',
     'Module is <strong>installing...</strong>' => 'Modulua <strong>instalatzen</strong> ari da...',
     'Module license added!' => 'Lizentzia erantsiaren modulua!',
-    'Module license added!
-' => 'Lizentzia erantsiaren modulua!',
-    'Module license key cannot be empty!
-' => 'Moduluko lizentziaren giltza ezin da hutsik egon!',
-    'Module not found or enabled!
-' => 'Modulua ez da aurkitu edo ez dago gaituta!',
-    'Module not found!
-' => 'Modulua ez da aurkitu!',
     'More info' => 'Informazio gehiago',
     'New' => 'Berria',
     'No compatible module version found!' => 'Ez da modulu bateragarriaren bertsiorik aurkitu !',
@@ -115,7 +90,6 @@ The license was successfully removed!
     'Remove license key' => 'Kendu lizentzia-gakoa',
     'Save and update' => 'Gorde eta eguneratu',
     'Search' => 'Bilatu',
-    'Search...' => 'Bilatu...',
     'Stop updating' => 'Ez eguneratu gehiago',
     'Tags' => 'Etiketak',
     'The HumHub project does not guarantee the functionality, quality or the continuous development of this Module.' => 'HumHub proiektuak ez du bermatzen modulu honen funtzionaltasuna, kalitatea edo etengabeko garapena.',
@@ -133,8 +107,24 @@ The license was successfully removed!
     'Your HumHub installation is up to date!' => 'Zure HumHub instalazioa eguneratuta dago!',
     'Add License' => '',
     'Advanced Module Search' => '',
+    'Are you sure you want to remove the license key?' => '',
+    'Buy non-curated module?' => '',
+    'Continue to checkout' => '',
+    'Description, Name, Keywords...' => '',
     'Edit License' => '',
+    'I understand and want to continue.' => '',
+    'If this Module is additionally marked as <strong>"Not curated"</strong>, it is not part of our curated selection and has not been reviewed by the HumHub team for quality, security or compatibility.' => '',
+    'Install anyway' => '',
+    'Install non-curated module?' => '',
+    'Module options' => '',
+    'Not curated' => '',
+    'Show non-curated modules' => '',
+    'Show non-curated modules?' => '',
+    'These modules are provided by independent partners and developers and are <strong>not part of our curated selection</strong>.<br><br>HumHub does not review them for quality, security or compatibility. Support, updates and licensing are handled by the respective provider.<br><br>Make sure you trust the source of a module before installing it.' => '',
     'Third-party Modules are not covered by Professional Edition agreements.' => '',
     'Third-party disclaimer' => '',
     'This Module was developed by a third-party.' => '',
+    'Yes, show non-curated modules' => '',
+    'You are about to install <strong>{moduleName}</strong>, a module that is not part of our curated selection.<br><br>It is provided by an independent partner or developer and has not been reviewed by the HumHub team for quality, security or compatibility. Support, updates and licensing are handled by the respective provider.<br><br>Make sure you trust the source before continuing.' => '',
+    'You are about to purchase <strong>{moduleName}</strong>, a module that is not part of our curated selection.<br><br>It is provided by an independent partner or developer and has not been reviewed by the HumHub team for quality, security or compatibility. Support, updates and licensing are handled by the respective provider.<br><br>Make sure you trust the source before continuing.' => '',
 ];

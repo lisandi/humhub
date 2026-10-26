@@ -1,27 +1,17 @@
 <?php
 
-/**
- * @link https://www.humhub.org/
- * @copyright Copyright (c) 2015 HumHub GmbH & Co. KG
- * @license https://www.humhub.com/licences
- */
-
 namespace humhub\modules\like;
 
 use humhub\components\ActiveRecord;
-use humhub\components\behaviors\PolymorphicRelation;
 use humhub\components\Event;
+use humhub\models\RecordMap;
+use humhub\modules\content\events\ContentEvent;
 use humhub\modules\like\models\Like;
 use Throwable;
 use Yii;
 use yii\base\BaseObject;
 use yii\db\StaleObjectException;
 
-/**
- * Events provides callbacks to handle events.
- *
- * @author luke
- */
 class Events extends BaseObject
 {
     /**
@@ -42,25 +32,44 @@ class Events extends BaseObject
         return true;
     }
 
+    public static function onRecordMapDelete($event)
+    {
+        /** @var RecordMap $recordMap */
+        $recordMap = $event->sender;
+
+        foreach (Like::findAll(['content_addon_record_id' => $recordMap->id]) as $like) {
+            $like->delete();
+        }
+
+        return true;
+    }
+
     /**
-     * On any ActiveRecord deletion check for assigned likes
+     * On hard delete of a content, delete all its likes
      *
-     * @param $event
+     * @param Event $event
      * @return bool
      * @throws Throwable
      * @throws StaleObjectException
      */
-    public static function onActiveRecordDelete($event)
+    public static function onContentDelete($event)
     {
-        /** @var ActiveRecord $record */
-        $record = $event->sender;
-        if ($record->hasAttribute('id')) {
-            foreach (Like::findAll(['object_id' => $record->id, 'object_model' => PolymorphicRelation::getObjectModel($record)]) as $like) {
-                $like->delete();
-            }
+        foreach (Like::findAll(['content_id' => $event->sender->content->id]) as $like) {
+            $like->delete();
         }
 
         return true;
+    }
+
+    /**
+     * On hard delete of a Content record without a polymorphic content object
+     * (e.g. cleaned up by the IntegrityController), delete all its likes too.
+     */
+    public static function onContentHardDelete(ContentEvent $event)
+    {
+        foreach (Like::findAll(['content_id' => $event->content->id]) as $like) {
+            $like->delete();
+        }
     }
 
     /**
@@ -73,17 +82,23 @@ class Events extends BaseObject
         $integrityController = $event->sender;
         $integrityController->showTestHeadline("Like (" . Like::find()->count() . " entries)");
 
+        /** @var Like $like */
         foreach (Like::find()->each() as $like) {
-            if ($like->source === null) {
-                if ($integrityController->showFix("Deleting like id " . $like->id . " without existing target!")) {
-                    $like->delete();
-                }
+            // Check underlying record exists
+            if (
+                !$like->getContent()->exists()
+                && $integrityController->showFix("Deleting like id " . $like->id . " without existing target!")
+            ) {
+                $like->delete();
+                continue;
             }
-            // User exists
-            if ($like->user === null) {
-                if ($integrityController->showFix("Deleting like id " . $like->id . " without existing user!")) {
-                    $like->delete();
-                }
+
+            // Check User exists
+            if (
+                !$like->getCreatedBy()->exists()
+                && $integrityController->showFix("Deleting like id " . $like->id . " without existing user!")
+            ) {
+                $like->delete();
             }
         }
     }
@@ -95,12 +110,7 @@ class Events extends BaseObject
      */
     public static function onWallEntryLinksInit($event)
     {
-        /** @var Module $module */
-        $module = Yii::$app->getModule('like');
-
-        if ($module->canLike($event->sender->object)) {
-            $event->sender->addWidget(widgets\LikeLink::class, ['object' => $event->sender->object], ['sortOrder' => 20]);
-        }
+        $event->sender->addWidget(widgets\LikeLink::class, ['object' => $event->sender->object], ['sortOrder' => 20]);
     }
 
 

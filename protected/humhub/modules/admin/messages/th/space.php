@@ -32,7 +32,9 @@ return [
     'Default "Hide Activity Sidebar Widget"' => '',
     'Default "Hide Followers"' => '',
     'Default "Hide Members"' => '',
+    'Default "Show topic widget in Stream sidebar"' => '',
+    'Default "Topic widget sort order"' => '',
+    'Default Content Sort Order' => '',
     'Default Homepage' => '',
     'Default Homepage (Non-members)' => '',
-    'Default Stream Sort' => '',
 ];

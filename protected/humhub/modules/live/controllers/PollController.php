@@ -29,11 +29,6 @@ use yii\db\Expression;
 class PollController extends Controller
 {
     /**
-     * @inheritdoc
-     */
-    protected $doNotInterceptActionIds = ['*'];
-
-    /**
      * @var int maximum events by query
      */
     public $maxEventsByQuery = 500;
@@ -113,20 +108,14 @@ class PollController extends Controller
      * Unserializes an event from database
      *
      * @param string serialized event
-     * @return LiveEvent the live event
+     * @return LiveEvent|null the live event, or null if the data could not be unserialized
      */
     protected function unserializeEvent($serializedEvent)
     {
-        try {
-            /* @var $liveEvent LiveEvent */
-            $liveEvent = unserialize($serializedEvent);
+        $liveEvent = LiveEvent::fromSerialized($serializedEvent);
 
-            if (!$liveEvent instanceof LiveEvent) {
-                throw new Exception('Invalid live event class after unserialize!');
-            }
-        } catch (\Exception $ex) {
-            Yii::error('Could not unserialize live event! ' . $ex->getMessage(), 'live');
-            return null;
+        if ($liveEvent === null) {
+            Yii::error('Could not unserialize live event or invalid live event class!', 'live');
         }
 
         return $liveEvent;

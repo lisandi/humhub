@@ -9,27 +9,24 @@
 namespace humhub\modules\content\components;
 
 use humhub\components\ActiveRecord;
+use humhub\components\assets\AssetImage;
 use humhub\libs\BasePermission;
-use humhub\libs\ProfileBannerImage;
 use humhub\libs\ProfileImage;
-use humhub\libs\UUID;
+use humhub\modules\content\events\ContentContainerImageEvent;
 use humhub\modules\content\models\Content;
 use humhub\modules\content\models\ContentContainer;
 use humhub\modules\content\models\ContentContainerBlockedUsers;
 use humhub\modules\content\models\ContentContainerTagRelation;
+use humhub\modules\space\models\Space;
 use humhub\modules\user\models\User;
 use humhub\modules\user\Module as UserModule;
 use Yii;
-use yii\base\Component;
 use yii\db\ActiveQuery;
 use yii\helpers\Url;
 use yii\web\IdentityInterface;
 
 /**
  * ContentContainerActiveRecord for ContentContainer Models e.g. Space or User.
- *
- * Required Methods:
- *      - getProfileImage()
  *
  * @property int $id
  * @property int $visibility
@@ -48,8 +45,9 @@ use yii\web\IdentityInterface;
  * @property-read string $displayName
  * @property-read string|mixed $displayNameSub
  * @property-read ContentContainerModuleManager $moduleManager
- * @property-read ProfileBannerImage $profileBannerImage
- * @property-read ProfileImage $profileImage
+ * @property-read ProfileImage $profileImage @deprecated since v1.19
+ * @property-read AssetImage $image
+ * @property-read AssetImage $bannerImage
  * @property-read string[] $tags
  * @property-read string $wallOut
  *
@@ -58,6 +56,26 @@ use yii\web\IdentityInterface;
  */
 abstract class ContentContainerActiveRecord extends ActiveRecord
 {
+    /**
+     * @event ContentContainerImageEvent triggered when the profile image ({@see getImage()}) of the
+     * container is initialized. This happens once per record instance, on first access; the result is
+     * cached afterwards. A handler may modify `$event->image` (e.g. set another `defaultFile`) or
+     * replace it with a different {@see AssetImage} — `$event->config` holds the configuration the
+     * image was created with.
+     * @since 1.19
+     */
+    public const EVENT_INIT_PROFILE_IMAGE = 'initProfileImage';
+
+    /**
+     * @event ContentContainerImageEvent triggered when the banner image ({@see getBannerImage()}) of the
+     * container is initialized. This happens once per record instance, on first access; the result is
+     * cached afterwards. A handler may modify `$event->image` (e.g. set another `defaultFile`) or
+     * replace it with a different {@see AssetImage} — `$event->config` holds the configuration the
+     * image was created with.
+     * @since 1.19
+     */
+    public const EVENT_INIT_BANNER_IMAGE = 'initBannerImage';
+
     /**
      * @var ContentContainerPermissionManager
      */
@@ -68,6 +86,8 @@ abstract class ContentContainerActiveRecord extends ActiveRecord
      */
     private $_moduleManager = null;
 
+    private ?AssetImage $_image = null;
+    private ?AssetImage $_bannerImage = null;
     /**
      * The behavior which will be attached to the base controller.
      *
@@ -93,14 +113,10 @@ abstract class ContentContainerActiveRecord extends ActiveRecord
     public $blockedUsersField;
 
     /**
+     * @deprecated since 1.19
      * @var string
      */
     public $profileImageClass = ProfileImage::class;
-
-    /**
-     * @var string
-     */
-    public $profileBannerImageClass = ProfileBannerImage::class;
 
     /**
      * Returns the display name of content container
@@ -118,25 +134,74 @@ abstract class ContentContainerActiveRecord extends ActiveRecord
      */
     abstract public function getDisplayNameSub(): string;
 
+    public function getImage(): AssetImage
+    {
+        if ($this->_image === null) {
+            $this->_image = $this->triggerInitImageEvent(self::EVENT_INIT_PROFILE_IMAGE, [
+                'file' => '/profile_image/' . $this->guid . '.jpg',
+                'defaultOptions' => [
+                    'width' => 150,
+                    'height' => 150,
+                ],
+                'masterOptions' => [
+                    'maxWidth' => 1920,
+                    'maxHeight' => 1080,
+                ],
+                'defaultFile' => ($this instanceof Space)
+                    ? '@humhub/resources/img/default_space.jpg'
+                    : '@humhub/resources/img/default_user.jpg',
+            ]);
+        }
+        return $this->_image;
+    }
+
+    public function getBannerImage(): AssetImage
+    {
+        if ($this->_bannerImage === null) {
+            $this->_bannerImage = $this->triggerInitImageEvent(self::EVENT_INIT_BANNER_IMAGE, [
+                'file' => '/profile_image/banner/' . $this->guid . '.jpg',
+                'defaultOptions' => [
+                    'width' => 1134,
+                    'height' => 192,
+                ],
+                'masterOptions' => [
+                    'maxWidth' => 1920,
+                    'maxHeight' => 1080,
+                ],
+                'defaultFile' => '@humhub/resources/img/default_banner.jpg',
+            ]);
+        }
+        return $this->_bannerImage;
+    }
+
     /**
-     * Returns the Profile Image Object for this Content Base
+     * Triggers the given init-image event ({@see EVENT_INIT_PROFILE_IMAGE} or
+     * {@see EVENT_INIT_BANNER_IMAGE}), letting modules customize or replace the container's
+     * {@see AssetImage}, and returns the resulting image.
      *
+     * @since 1.19
+     */
+    private function triggerInitImageEvent(string $eventName, array $config): AssetImage
+    {
+        $event = new ContentContainerImageEvent([
+            'image' => new AssetImage($config),
+            'config' => $config,
+        ]);
+        $this->trigger($eventName, $event);
+
+        return $event->image;
+    }
+
+    /**
      * @return ProfileImage
+     * @note use getImage() instead
+     * @deprecated v1.19
      */
     public function getProfileImage()
     {
         return new $this->profileImageClass($this);
     }
 
-    /**
-     * Returns the Profile Banner Image Object for this Content Base
-     *
-     * @return ProfileBannerImage
-     */
-    public function getProfileBannerImage()
-    {
-        return new $this->profileBannerImageClass($this);
-    }
 
     /**
      * Should be overwritten by implementation
@@ -172,17 +237,6 @@ abstract class ContentContainerActiveRecord extends ActiveRecord
     public function canAccessPrivateContent(?User $user = null)
     {
         return false;
-    }
-
-    /**
-     * Returns the wall output for this content container.
-     * This is e.g. used in search results.
-     *
-     * @return string
-     */
-    public function getWallOut()
-    {
-        return "Default Wall Output for Class " . static::class;
     }
 
     /**
@@ -256,10 +310,8 @@ abstract class ContentContainerActiveRecord extends ActiveRecord
      */
     public function afterDelete()
     {
-        ContentContainer::deleteAll([
-            'pk' => $this->getPrimaryKey(),
-            'class' => static::class,
-        ]);
+        $contentContainer = ContentContainer::findOne(['id' => $this->contentcontainer_id]);
+        $contentContainer->delete();
 
         parent::afterDelete();
     }
@@ -410,7 +462,9 @@ abstract class ContentContainerActiveRecord extends ActiveRecord
      */
     public function getTags(): array
     {
-        $tags = ($this->contentContainerRecord instanceof ContentContainer) && is_string($this->contentContainerRecord->tags_cached)
+        $tags = ($this->contentContainerRecord instanceof ContentContainer) && is_string(
+            $this->contentContainerRecord->tags_cached,
+        )
             ? trim($this->contentContainerRecord->tags_cached)
             : '';
         return $tags === '' ? [] : preg_split('/\s*,\s*/', $tags);
@@ -438,7 +492,7 @@ abstract class ContentContainerActiveRecord extends ActiveRecord
         }
 
         $blockedUsers = $this->getSettings()->get(ContentContainerBlockedUsers::BLOCKED_USERS_SETTING);
-        return empty($blockedUsers) ? [] : explode(',', (string) $blockedUsers);
+        return empty($blockedUsers) ? [] : explode(',', (string)$blockedUsers);
     }
 
     /**

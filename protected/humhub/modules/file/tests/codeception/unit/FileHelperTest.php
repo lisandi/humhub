@@ -9,6 +9,7 @@
 namespace tests\codeception\unit\modules\file;
 
 use Exception;
+use humhub\components\fs\LocalMountConfig;
 use humhub\modules\file\libs\FileHelper;
 use humhub\modules\file\models\File;
 use SplFileInfo;
@@ -23,7 +24,12 @@ class FileHelperTest extends HumHubDbTestCase
     {
         parent::setUp();
 
-        Yii::setAlias('@filestore', Yii::getAlias('@tests/codeception/_data'));
+        Yii::$app->fs->mounts['fsDataTest'] = [
+            'class' => LocalMountConfig::class,
+            'path' => '@tests/codeception/_data',
+        ];
+        Yii::$app->fs->mountData = 'fsDataTest';
+
     }
 
     public function testHasExtension()
@@ -82,6 +88,38 @@ class FileHelperTest extends HumHubDbTestCase
     public function testGetExtensionNotSupported()
     {
         static::assertEquals('', FileHelper::getExtension(new SplFileInfo(__FILE__)));
+    }
+
+    public function testGetContentDispositionHeaderValue()
+    {
+        // Plain ASCII names need no RFC 5987 variant
+        static::assertEquals(
+            'attachment; filename="report.pdf"',
+            FileHelper::getContentDispositionHeaderValue('attachment', 'report.pdf'),
+        );
+
+        static::assertEquals(
+            'inline; filename="report.pdf"',
+            FileHelper::getContentDispositionHeaderValue('inline', 'report.pdf'),
+        );
+
+        // Non-ASCII names get a transliterated fallback plus the RFC 5987 variant
+        static::assertEquals(
+            'attachment; filename="Ubersicht.pdf"; filename*=utf-8\'\'%C3%9Cbersicht.pdf',
+            FileHelper::getContentDispositionHeaderValue('attachment', 'Übersicht.pdf'),
+        );
+
+        // Path separators must not leak into the fallback name
+        static::assertEquals(
+            'attachment; filename="_etc_passwd"; filename*=utf-8\'\'etcpasswd',
+            FileHelper::getContentDispositionHeaderValue('attachment', '/etc/passwd'),
+        );
+
+        // Quotes must be escaped, they would otherwise terminate the quoted string
+        static::assertEquals(
+            'attachment; filename="say \"hi\".txt"; filename*=utf-8\'\'say%20%22hi%22.txt',
+            FileHelper::getContentDispositionHeaderValue('attachment', 'say "hi".txt'),
+        );
     }
 
     public function testCreateLinkException()

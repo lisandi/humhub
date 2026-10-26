@@ -2,12 +2,6 @@
 
 return [
     '
-Module successfully disabled!
-' => 'Il modulo è stato disattivato!',
-    '
-Module successfully enabled!
-' => 'Il modulo è stato attivato!',
-    '
 No active Professional Edition license found!
 ' => 'Nessuna licenza Professional Edition attiva trovata!',
     '
@@ -21,12 +15,6 @@ The license was successfully activated!
 The license was successfully removed!
 
 ' => 'La licenza è stata rimossa con successo!',
-    '--- Disable module: {moduleId} ---
-
-' => '--- Disattiva modulo: {moduleId} ---',
-    '--- Enable module: {moduleId} ---
-
-' => '--- Attiva modulo: {moduleId} ---',
     '<strong>Activate</strong> your Professional Edition' => '<strong> Attiva </strong> la tua Professional Edition',
     '<strong>General</strong> Settings' => '<strong>Generale</strong> Impostazioni',
     'A new update is available (HumHub %version%)!' => 'È disponibile un nuovo aggiornamento (HumHub %version%)!',
@@ -39,13 +27,11 @@ The license was successfully removed!
     'Available Updates' => 'Aggiornamenti disponibili',
     'Buy' => 'Compra',
     'Buy (%price%)' => 'Compra (%price%)',
+    'Cancel' => 'Annulla',
     'Categories' => 'Categorie',
     'Changelog' => 'Registro delle modifiche',
-    'Community' => 'Comunità',
     'Configure' => 'Configura',
     'Could not connect to HumHub API!' => 'Impossibile connettersi all\'API di HumHub!',
-    'Could not connect to HumHub API!
-' => 'Impossibile connettersi all\'API HumHub!',
     'Could not connect to license server!' => 'Impossibile connettersi al server delle licenze!',
     'Could not extract module!' => 'Non posso estrarre il modulo!',
     'Could not find requested module!' => 'Non posso trovare il modulo richiesto!',
@@ -61,13 +47,10 @@ The license was successfully removed!
     'Find all the modules you can add to your network in our HumHub Marketplace. Discover numerous add-ons and features that customize the software and give you the possibility to configure your network to your needs.' => 'Trovate tutti i moduli che potete aggiungere alla vostra rete nel nostro HumHub Marketplace. Scoprite numerosi componenti aggiuntivi e funzioni che personalizzano il software e vi danno la possibilità di configurare la rete in base alle vostre esigenze.',
     'General Settings' => 'Impostazioni generali',
     'Great!' => 'Grande!',
-    'If this Module is additionally marked as <strong>"Community"</strong> it is neither tested nor monitored by the HumHub project team.' => 'Se questo modulo è inoltre contrassegnato come <strong> "Community" </strong> non viene né testato né monitorato dal team del progetto HumHub.',
     'Information' => 'Informazioni',
     'Install' => 'Installa',
     'Installed' => 'Installato',
     'Invalid module license key!' => 'Chiave di licenza del modulo non valida!',
-    'Invalid module license key!
-' => 'Chiave di licenza del modulo non valida!',
     'Latest version:' => 'Ultima versione:',
     'Learn more' => 'Per saperne di più',
     'License Key:' => 'Chiave licenza:',
@@ -87,12 +70,6 @@ The license was successfully removed!
     'Module download failed! (%error%)' => 'Scaricamento del modulo fallito! (%error%)',
     'Module is <strong>installing...</strong>' => 'Il modulo si sta <strong>installando...</strong>',
     'Module license added!' => 'Aggiunta della licenza del modulo!',
-    'Module license added!
-' => 'Licenza modulo aggiunta!',
-    'Module license key cannot be empty!
-' => 'La chiave di licenza del modulo non può essere vuota!',
-    'Module not found!
-' => 'Modulo non trovato!',
     'More info' => 'Più informazioni',
     'New' => 'Nuovo',
     'No compatible module version found!' => 'Non è stata trovata nessuna versione compatibile del modulo!',
@@ -111,7 +88,6 @@ The license was successfully removed!
     'Remove license key' => 'Rimuovi la chiave di licenza',
     'Save and update' => 'Salva e aggiorna',
     'Search' => 'Ricerca',
-    'Search...' => 'Cerca...',
     'Stop updating' => 'Smetti di aggiornare',
     'Tags' => 'Tag',
     'The HumHub project does not guarantee the functionality, quality or the continuous development of this Module.' => 'Il progetto HumHub non garantisce la funzionalità, la qualità o lo sviluppo continuo di questo modulo.',
@@ -132,9 +108,23 @@ The license was successfully removed!
     'Add License' => '',
     'Advanced Module Search' => '',
     'All modules' => '',
+    'Are you sure you want to remove the license key?' => '',
+    'Buy non-curated module?' => '',
+    'Continue to checkout' => '',
+    'Description, Name, Keywords...' => '',
     'Edit License' => '',
-    'Module not found or enabled!
-' => '',
+    'I understand and want to continue.' => '',
+    'If this Module is additionally marked as <strong>"Not curated"</strong>, it is not part of our curated selection and has not been reviewed by the HumHub team for quality, security or compatibility.' => '',
+    'Install anyway' => '',
+    'Install non-curated module?' => '',
+    'Module options' => '',
     'No, thank you!' => '',
+    'Not curated' => '',
+    'Show non-curated modules' => '',
+    'Show non-curated modules?' => '',
+    'These modules are provided by independent partners and developers and are <strong>not part of our curated selection</strong>.<br><br>HumHub does not review them for quality, security or compatibility. Support, updates and licensing are handled by the respective provider.<br><br>Make sure you trust the source of a module before installing it.' => '',
     'Without category' => '',
+    'Yes, show non-curated modules' => '',
+    'You are about to install <strong>{moduleName}</strong>, a module that is not part of our curated selection.<br><br>It is provided by an independent partner or developer and has not been reviewed by the HumHub team for quality, security or compatibility. Support, updates and licensing are handled by the respective provider.<br><br>Make sure you trust the source before continuing.' => '',
+    'You are about to purchase <strong>{moduleName}</strong>, a module that is not part of our curated selection.<br><br>It is provided by an independent partner or developer and has not been reviewed by the HumHub team for quality, security or compatibility. Support, updates and licensing are handled by the respective provider.<br><br>Make sure you trust the source before continuing.' => '',
 ];

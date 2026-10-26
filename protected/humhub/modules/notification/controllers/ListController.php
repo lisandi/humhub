@@ -11,6 +11,7 @@ namespace humhub\modules\notification\controllers;
 use Exception;
 use humhub\components\access\ControllerAccess;
 use humhub\components\Controller;
+use humhub\modules\notification\events\UnreadCountChangedEvent;
 use humhub\modules\notification\models\forms\FilterForm;
 use humhub\modules\notification\models\Notification;
 use Throwable;
@@ -82,10 +83,15 @@ class ListController extends Controller
 
         $filterForm = new FilterForm();
         $filterForm->load(Yii::$app->request->post());
+        $count = $filterForm->markAsSeen();
+
+        if ($count > 0) {
+            UnreadCountChangedEvent::triggerChanged(Yii::$app->user->getIdentity());
+        }
 
         return $this->asJson([
             'success' => true,
-            'count' => $filterForm->markAsSeen(),
+            'count' => $count,
             'unseenCount' => Notification::findUnseen()->count(),
         ]);
     }

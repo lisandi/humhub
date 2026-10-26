@@ -38,7 +38,7 @@ class UserFollowButton extends Widget
     public $unfollowLabel = null;
 
     /**
-     * @var string options for follow button
+     * @var array options for follow button
      */
     public $followOptions = ['class' => 'btn btn-primary'];
 
@@ -116,6 +116,11 @@ class UserFollowButton extends Widget
         $this->unfollowOptions['data-action-confirm'] = Yii::t('SpaceModule.base', 'Would you like to unfollow {userName}?', [
             '{userName}' => '<strong>' . Html::encode($this->user->getDisplayName()) . '</strong>',
         ]);
+
+        if ($this->user->isFollowedByUser()) {
+            $this->unfollowOptions['aria-pressed'] = 'true';
+            $this->followOptions['aria-pressed'] = 'false';
+        }
 
         $module = Yii::$app->getModule('user');
 

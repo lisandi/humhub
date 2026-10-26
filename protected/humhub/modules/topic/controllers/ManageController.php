@@ -9,6 +9,7 @@
 
 namespace humhub\modules\topic\controllers;
 
+use humhub\modules\topic\models\forms\TopicSettingsForm;
 use humhub\modules\user\models\User;
 use humhub\widgets\modal\ModalClose;
 use humhub\modules\content\components\ContentContainerController;
@@ -74,6 +75,14 @@ class ManageController extends ContentContainerController
             $this->view->error($model->getFirstError('name'));
         }
 
+        if ($this->contentContainer instanceof Space) {
+            $topicSettings = new TopicSettingsForm(['contentContainer' => $this->contentContainer]);
+            if ($topicSettings->load(Yii::$app->request->post()) && $topicSettings->save()) {
+                $this->view->saved();
+                $this->redirect('manage');
+            }
+        }
+
         $title = $this->contentContainer instanceof User
             ? Yii::t('UserModule.account', '<strong>Account</strong> Settings')
             : Yii::t('TopicModule.base', '<strong>Topic</strong> Overview');
@@ -82,6 +91,7 @@ class ManageController extends ContentContainerController
             'contentContainer' => $this->contentContainer,
             'dataProvider' => $this->getTopicProvider(),
             'addModel' => new Topic(),
+            'topicSettings' => $topicSettings ?? null,
             'title' => $title,
         ]);
     }

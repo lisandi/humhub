@@ -197,7 +197,7 @@ class UrlOembed extends ActiveRecord
                         return Html::tag('div', '', ['id' => $placeholderId]);
                     }, $result);
 
-                    return trim((string) preg_replace('/\s+/', ' ', $result));
+                    return trim((string) preg_replace('/\s+/', ' ', (string) $result));
                 }
             }
         } catch (RestrictedCallException $re) {
@@ -556,6 +556,35 @@ class UrlOembed extends ActiveRecord
         /* @var User $user */
         $user = Yii::$app->user->getIdentity();
         $user->settings->set('allowedOembedUrls', implode(',', $allowedUrls));
+
+        return true;
+    }
+
+    /**
+     * Restrict the domains always allowed for oembed URLs of the current User to the given ones.
+     * Only already allowed domains are kept, new domains cannot be added this way.
+     *
+     * @param array $domains
+     * @return bool
+     * @since 1.19
+     */
+    public static function restrictAllowedDomains(array $domains): bool
+    {
+        if (Yii::$app->user->isGuest) {
+            return false;
+        }
+
+        // Intersect with the already allowed domains, so new domains can't be added here (e.g. by a forged request),
+        // only removed. New domains are allowed only via the oEmbed confirmation (see saveAllowedDomain()).
+        $allowedUrls = array_values(array_intersect(self::getAllowedDomains(), $domains));
+
+        /* @var User $user */
+        $user = Yii::$app->user->getIdentity();
+        if ($allowedUrls === []) {
+            $user->settings->delete('allowedOembedUrls');
+        } else {
+            $user->settings->set('allowedOembedUrls', implode(',', $allowedUrls));
+        }
 
         return true;
     }

@@ -11,13 +11,13 @@
 namespace humhub\tests\codeception\unit\components;
 
 use humhub\components\SettingsManager;
-use humhub\libs\BaseSettingsManager;
 use humhub\models\Setting;
 use humhub\modules\content\components\ContentContainerSettingsManager;
 use humhub\modules\space\models\Space;
 use humhub\modules\user\models\User;
 use tests\codeception\_support\HumHubDbTestCase;
 use Yii;
+use yii\base\Event;
 use yii\base\InvalidArgumentException;
 use yii\base\InvalidConfigException;
 use yii\caching\ArrayCache;
@@ -167,6 +167,32 @@ class SettingsManagerTest extends HumHubDbTestCase
         $this->assertRecordExists($table, ['name' => $setting, 'module_id' => $module]);
         $this->assertRecordValue($value, 'value', $table, ['name' => $setting, 'module_id' => $module]);
         $this->assertEquals($value, $sm->get($setting));
+    }
+
+    public function testSetConcurrentInsert()
+    {
+        $module = 'base';
+        $table = Setting::tableName();
+        $sm = new SettingsManager(['moduleId' => $module]);
+
+        $setting = 'testConcurrentSetting';
+        $this->assertRecordNotExists($table, ['name' => $setting, 'module_id' => $module]);
+
+        // Simulate a concurrent request inserting the same setting between find() and save()
+        Event::on(Setting::class, Setting::EVENT_BEFORE_INSERT, function () use ($table, $setting, $module): void {
+            Event::off(Setting::class, Setting::EVENT_BEFORE_INSERT);
+            Yii::$app->db->createCommand()->insert($table, [
+                'module_id' => $module,
+                'name' => $setting,
+                'value' => 'concurrent value',
+            ])->execute();
+        });
+
+        $sm->set($setting, 'expected value');
+
+        $this->assertEquals('expected value', $sm->get($setting));
+        $this->assertRecordValue('expected value', 'value', $table, ['name' => $setting, 'module_id' => $module]);
+        $this->assertEquals(1, (int)Setting::find()->where(['name' => $setting, 'module_id' => $module])->count());
     }
 
     public function testSettingFixedValues()
@@ -385,7 +411,7 @@ class SettingsManagerTest extends HumHubDbTestCase
 
         // changing the value behind the scenes
         $value2 = 'third value';
-        self::dbUpdate($table, ['value' => $value2], ['name' => $setting, 'module_id' => $module]);
+        Setting::updateAll(['value' => $value2], ['name' => $setting, 'module_id' => $module]);
         $this->assertRecordValue($value2, 'value', $table, ['name' => $setting, 'module_id' => $module]);
 
         // getting the value now should still show tho "old" value

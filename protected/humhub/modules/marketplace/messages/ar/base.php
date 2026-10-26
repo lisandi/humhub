@@ -2,12 +2,6 @@
 
 return [
     '
-Module successfully disabled!
-' => 'تم تعطيل الموديول بنجاح!',
-    '
-Module successfully enabled!
-' => 'تم تفعيل الموديول بنجاح!',
-    '
 No active Professional Edition license found!
 ' => 'لم يتم العثور على ترخيص إصدار احترافي نشط!',
     '
@@ -21,12 +15,6 @@ The license was successfully activated!
 The license was successfully removed!
 
 ' => 'تمت إزالة الترخيص بنجاح!',
-    '--- Disable module: {moduleId} ---
-
-' => '--- تعطيل الوحدة (الموديول): {moduleId} ---',
-    '--- Enable module: {moduleId} ---
-
-' => '--- تمكين الوحدة (الموديول): {moduleId} ---',
     '<strong>Activate</strong> your Professional Edition' => '<strong> تنشيط </strong> الإصدار الاحترافي الخاص بك',
     '<strong>General</strong> Settings' => 'الإعدادات <strong>العام</strong>',
     'A new update is available (HumHub %version%)!' => 'يتوفر تحديث جديد (HumHub %version%)!',
@@ -41,13 +29,11 @@ The license was successfully removed!
     'Available Updates' => 'التحديثات المتاحة',
     'Buy' => 'شراء',
     'Buy (%price%)' => '(%price%) شراء',
+    'Cancel' => 'إلغاء',
     'Categories' => 'الفئات',
     'Changelog' => 'سجل التغييرات',
-    'Community' => 'المجتمع',
     'Configure' => 'إعدادات',
     'Could not connect to HumHub API!' => 'تعذر الاتصال بـ HumHub API!',
-    'Could not connect to HumHub API!
-' => 'تعذر الاتصال بـ HumHub API!',
     'Could not connect to license server!' => 'تعذر الاتصال بخادم الترخيص!',
     'Could not extract module!' => 'تعذر استخراج الموديول!',
     'Could not find requested module!' => 'لم يتم ايجاد الموديول المطلوب!',
@@ -63,13 +49,10 @@ The license was successfully removed!
     'Find all the modules you can add to your network in our HumHub Marketplace. Discover numerous add-ons and features that customize the software and give you the possibility to configure your network to your needs.' => 'ابحث عن جميع الموديولات  التي يمكنك إضافتها إلى شبكتك في HumHub متجر الخاص بنا. اكتشف العديد من الوظائف الإضافية والميزات التي تعمل على تخصيص البرنامج وتمنحك إمكانية إعداد شبكتك وفقًا لاحتياجاتك.',
     'General Settings' => 'الاعدادات العامة',
     'Great!' => 'عظيم!',
-    'If this Module is additionally marked as <strong>"Community"</strong> it is neither tested nor monitored by the HumHub project team.' => 'إذا تم وضع علامة على هذه الوحدة أيضًا على أنها <strong>"مجتمع"</strong> فلن يتم اختبارها أو مراقبتها بواسطة فريق مشروع HumHub.',
     'Information' => 'معلومات',
     'Install' => 'تثبيت',
     'Installed' => 'تم التثبيت',
     'Invalid module license key!' => 'مفتاح ترخيص الوحدة غير صالح!',
-    'Invalid module license key!
-' => 'مفتاح ترخيص الوحدة غير صالح!',
     'Latest version:' => 'احدث اصدار:',
     'Learn more' => 'تعلم المزيد',
     'License Key:' => 'مفتاح الترخيص:',
@@ -89,14 +72,6 @@ The license was successfully removed!
     'Module download failed! (%error%)' => 'فشل تحميل الموديول! (%error%)',
     'Module is <strong>installing...</strong>' => 'الموديول <strong>قيد التثبيت...</strong>',
     'Module license added!' => 'تمت إضافة ترخيص الموديول!',
-    'Module license added!
-' => 'تمت إضافة ترخيص الموديول!',
-    'Module license key cannot be empty!
-' => 'ترخيص الموديول لا يمكن أن يكون فارغاً!',
-    'Module not found or enabled!
-' => 'الموديول غير موجودة أو مفعلة!',
-    'Module not found!
-' => 'الموديول غير موجودة!',
     'More info' => 'المزيد من المعلومات',
     'New' => 'جديد',
     'No compatible module version found!' => 'لا توجد نسخة مناسبة للموديول!',
@@ -116,7 +91,6 @@ The license was successfully removed!
     'Remove license key' => 'إزالة مفتاح الترخيص',
     'Save and update' => 'حفظ وتحديث',
     'Search' => 'بحث',
-    'Search...' => '...بحث',
     'Stop updating' => 'إيقاف التحديث',
     'Tags' => 'العلامات',
     'The HumHub project does not guarantee the functionality, quality or the continuous development of this Module.' => 'لا يضمن مشروع HumHub الأداء الوظيفي لهذه الوحدة أو جودتها أو التطوير المستمر لها.',
@@ -136,5 +110,21 @@ The license was successfully removed!
     'Would you like to jump straight to it?' => 'هل ترغب في القفز مباشرة إليها؟',
     'Your HumHub installation is up to date!' => 'تثبيت HumHub الخاص بك محدث!',
     'Add License' => '',
+    'Are you sure you want to remove the license key?' => '',
+    'Buy non-curated module?' => '',
+    'Continue to checkout' => '',
+    'Description, Name, Keywords...' => '',
     'Edit License' => '',
+    'I understand and want to continue.' => '',
+    'If this Module is additionally marked as <strong>"Not curated"</strong>, it is not part of our curated selection and has not been reviewed by the HumHub team for quality, security or compatibility.' => '',
+    'Install anyway' => '',
+    'Install non-curated module?' => '',
+    'Module options' => '',
+    'Not curated' => '',
+    'Show non-curated modules' => '',
+    'Show non-curated modules?' => '',
+    'These modules are provided by independent partners and developers and are <strong>not part of our curated selection</strong>.<br><br>HumHub does not review them for quality, security or compatibility. Support, updates and licensing are handled by the respective provider.<br><br>Make sure you trust the source of a module before installing it.' => '',
+    'Yes, show non-curated modules' => '',
+    'You are about to install <strong>{moduleName}</strong>, a module that is not part of our curated selection.<br><br>It is provided by an independent partner or developer and has not been reviewed by the HumHub team for quality, security or compatibility. Support, updates and licensing are handled by the respective provider.<br><br>Make sure you trust the source before continuing.' => '',
+    'You are about to purchase <strong>{moduleName}</strong>, a module that is not part of our curated selection.<br><br>It is provided by an independent partner or developer and has not been reviewed by the HumHub team for quality, security or compatibility. Support, updates and licensing are handled by the respective provider.<br><br>Make sure you trust the source before continuing.' => '',
 ];

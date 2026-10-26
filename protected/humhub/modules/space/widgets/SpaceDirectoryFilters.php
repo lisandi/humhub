@@ -31,9 +31,15 @@ class SpaceDirectoryFilters extends DirectoryFilters
             'title' => Yii::t('SpaceModule.base', 'Search'),
             'placeholder' => Yii::t('SpaceModule.base', 'Description, Name, Tags...'),
             'type' => 'input',
-            'inputOptions' => ['autocomplete' => 'off'],
+            'inputOptions' => ['autocomplete' => 'search'],
             'wrapperClass' => 'flex-fill form-search-filter-keyword',
-            'afterInput' => Html::submitButton('<span class="fa fa-search"></span>', ['class' => 'form-button-search']),
+            'afterInput' => Html::submitButton('<span class="fa fa-search" aria-hidden="true"></span>', [
+                'class' => 'form-button-search',
+                'aria-label' => Yii::t('SpaceModule.base', 'Search'),
+                // Pressing Enter in the keyword field already submits the form, so this
+                // button doesn't need its own tab stop.
+                'tabindex' => '-1',
+            ]),
             'sortOrder' => 100,
         ]);
 

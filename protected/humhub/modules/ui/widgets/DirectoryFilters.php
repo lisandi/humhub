@@ -12,6 +12,7 @@ use humhub\components\Widget;
 use humhub\helpers\Html;
 use humhub\modules\ui\form\widgets\DatePicker;
 use humhub\widgets\bootstrap\Button;
+use ReflectionClass;
 use Yii;
 use yii\helpers\ArrayHelper;
 
@@ -63,7 +64,7 @@ abstract class DirectoryFilters extends Widget
 
     public function initActions(): void
     {
-        // Find min sort to put the actions after the first filter
+        // Find min sort to put the toggle-more action right after the first filter
         $minSortOrder = null;
         foreach ($this->filters as $data) {
             if (isset($data['sortOrder']) && ($minSortOrder === null || $minSortOrder > $data['sortOrder'])) {
@@ -79,6 +80,7 @@ abstract class DirectoryFilters extends Widget
                 'info' => Button::light()
                     ->icon('filter')
                     ->options([
+                        'aria-label' => Yii::t('UiModule.base', 'Toggle filters'),
                         'data-bs-toggle' => 'collapse',
                         'data-bs-target' => '.card-filter-' . $this->id,
                     ])
@@ -88,6 +90,17 @@ abstract class DirectoryFilters extends Widget
         }
 
         if (isset($this->data['action-url']) || $this->isFiltered()) {
+            // The reset action is always displayed as the very last action (see the
+            // .form-search-action rules in _cards.scss), so it also has to be the
+            // last one in the DOM/tab order - otherwise keyboard navigation reaches
+            // it long before it is visually shown.
+            $maxSortOrder = null;
+            foreach ($this->filters as $data) {
+                if (isset($data['sortOrder']) && ($maxSortOrder === null || $maxSortOrder < $data['sortOrder'])) {
+                    $maxSortOrder = $data['sortOrder'];
+                }
+            }
+
             $this->addFilter('reset', [
                 'type' => 'info',
                 'wrapperClass' => 'form-search-action form-search-action-reset'
@@ -95,8 +108,9 @@ abstract class DirectoryFilters extends Widget
                 'info' => Button::danger()
                     ->icon('times')
                     ->link([$this->pageUrl])
-                    ->tooltip(Yii::t('UiModule.base', 'Reset filters')),
-                'sortOrder' => ++$minSortOrder,
+                    ->tooltip(Yii::t('UiModule.base', 'Reset filters'))
+                    ->options(['aria-label' => Yii::t('UiModule.base', 'Reset filters')]),
+                'sortOrder' => ($maxSortOrder ?? 0) + 1,
             ]);
         }
     }
@@ -130,10 +144,11 @@ abstract class DirectoryFilters extends Widget
         $filtersHtml = '';
         foreach ($this->filters as $filter => $data) {
             $data = array_merge(self::getDefaultFilterData(), $data);
-            if ($filtersHtml !== '' && !str_contains($data['wrapperClass'], 'form-search-action')) {
+            if ($filtersHtml !== '' && !str_contains((string) $data['wrapperClass'], 'form-search-action')) {
                 // Add styles for filters collapsing by Bootstrap (except of the first filter)
                 $data['wrapperClass'] .= ' collapse show card-filter-' . $this->id;
             }
+            $data['inputId'] ??= $this->getInputId($filter);
             $filterInput = $this->renderFilterInput($filter, $data);
 
             if ($filterInput !== $data['beforeInput'] . $data['afterInput']) {
@@ -159,7 +174,10 @@ abstract class DirectoryFilters extends Widget
 
     public function renderFilterInput(string $filter, array $data): string
     {
-        $inputOptions = ['class' => $data['inputClass']];
+        $inputOptions = [
+            'id' => $data['inputId'],
+            'class' => $data['inputClass'],
+        ];
 
         if (isset($data['inputOptions'])) {
             $inputOptions = array_merge($inputOptions, $data['inputOptions']);
@@ -278,4 +296,15 @@ abstract class DirectoryFilters extends Widget
         return false;
     }
 
+    /**
+     * Get filter input ID
+     *
+     * @param string $name
+     * @return string
+     */
+    protected function getInputId(string $name): string
+    {
+        $formName = (new ReflectionClass($this))->getShortName();
+        return preg_replace('/[^a-z\d\-]+/', '-', strtolower($formName . '-' . $name));
+    }
 }

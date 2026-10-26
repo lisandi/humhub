@@ -8,6 +8,7 @@
 
 namespace humhub\components;
 
+use humhub\components\gates\GateManager;
 use humhub\helpers\EnvHelper;
 use humhub\interfaces\MailerInterface;
 use humhub\libs\SelfTest;
@@ -19,6 +20,7 @@ use yii\i18n\Formatter;
 
 /**
  * @property-read InstallationState $installationState
+ * @property-read GateManager $gateManager
  */
 trait ApplicationTrait
 {
@@ -62,6 +64,7 @@ trait ApplicationTrait
     {
         return InstallationState::instance();
     }
+
 
     private function initLocales(): void
     {
@@ -114,45 +117,6 @@ trait ApplicationTrait
     {
         return parent::getMailer();
     }
-
-    /**
-     * Checks if Humhub is installed
-     *
-     * @deprecated since 1.18
-     * @see InstallationState::hasState()
-     * @return bool
-     * @since 1.16
-     */
-    public function isInstalled(): bool
-    {
-        return $this->installationState->hasState(InstallationState::STATE_INSTALLED);
-    }
-
-    /**
-     * Sets application in installed state (disables installer)
-     *
-     * @deprecated since 1.18
-     * @see InstallationState::setState()
-     * @since 1.16
-     */
-    public function setInstalled()
-    {
-        $this->installationState->setInstalled();
-    }
-
-
-    /**
-     * Checks if settings table exists or application is not installed yet
-     *
-     * @deprecated since 1.18
-     * @see InstallationState::hasState()
-     * @since 1.16
-     */
-    public function isDatabaseInstalled(bool $checkConnection = false): bool
-    {
-        return $this->installationState->hasState(InstallationState::STATE_DATABASE_CREATED);
-    }
-
 
     private function removeLegacyConfigSettings($applicationConfig)
     {

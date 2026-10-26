@@ -2,12 +2,6 @@
 
 return [
     '
-Module successfully disabled!
-' => 'Modul bol úspešne deaktivovaný!',
-    '
-Module successfully enabled!
-' => 'Modul bol úspešne aktivovaný!',
-    '
 No active Professional Edition license found!
 ' => 'Nenašla sa žiadna aktívna licencia Professional Edition!',
     '
@@ -21,12 +15,6 @@ The license was successfully activated!
 The license was successfully removed!
 
 ' => 'Licencia bola úspešne odstránená!',
-    '--- Disable module: {moduleId} ---
-
-' => '--- Deaktivovať modul: {moduleId} ---',
-    '--- Enable module: {moduleId} ---
-
-' => '--- Aktivovať modul: {moduleId} ---',
     '<strong>Activate</strong> your Professional Edition' => '<strong>Aktivujte</strong> svoju Profesionálnu verziu',
     '<strong>General</strong> Settings' => '<strong>Všeobecné</strong> nastavenia',
     'A new update is available (HumHub %version%)!' => 'K dispozícii je nová aktualizácia (HumHub %version%)!',
@@ -41,13 +29,11 @@ The license was successfully removed!
     'Available Updates' => 'Dostupné aktualizácie',
     'Buy' => 'Kúpiť',
     'Buy (%price%)' => 'Kúpiť (%price%)',
+    'Cancel' => 'Zrušiť',
     'Categories' => 'Kategórie',
     'Changelog' => 'Denník zmien',
-    'Community' => 'Komunita',
     'Configure' => 'Nastaviť',
     'Could not connect to HumHub API!' => 'Nepodarilo sa pripojiť k HumHub API!',
-    'Could not connect to HumHub API!
-' => 'Nepodarilo sa pripojiť k HumHub API!',
     'Could not connect to license server!' => 'Nepodarilo sa pripojiť k licenčnému serveru!',
     'Could not extract module!' => 'Modul sa nepodarilo extrahovať!',
     'Could not find requested module!' => 'Požadovaný modul sa nepodarilo nájsť!',
@@ -63,13 +49,10 @@ The license was successfully removed!
     'Find all the modules you can add to your network in our HumHub Marketplace. Discover numerous add-ons and features that customize the software and give you the possibility to configure your network to your needs.' => 'Všetky moduly, ktoré môžete pridať do svojej siete, nájdete na našom HumHub Marketplace.  Objavte množstvo doplnkov a funkcií, ktoré prispôsobujú softvér a poskytujú vám možnosť nakonfigurovať sieť podľa vašich potrieb.',
     'General Settings' => 'Všeobecné nastavenia',
     'Great!' => 'Skvelé!',
-    'If this Module is additionally marked as <strong>"Community"</strong> it is neither tested nor monitored by the HumHub project team.' => 'Ak je tento modul dodatočne označený ako <strong>"Community"</strong>, nie je testovaný ani monitorovaný projektovým tímom HumHub.',
     'Information' => 'Informácia',
     'Install' => 'Inštalácia',
     'Installed' => 'Nainštalované',
     'Invalid module license key!' => 'Neplatný licenčný kľúč modulu!',
-    'Invalid module license key!
-' => 'Neplatný licenčný kľúč modulu!',
     'Latest version:' => 'Najnovšia verzia:',
     'Learn more' => 'Učiť sa viac',
     'License Key:' => 'Licenčný kľúč:',
@@ -89,14 +72,6 @@ The license was successfully removed!
     'Module download failed! (%error%)' => 'Sťahovanie modulu zlyhalo!  (%chyba%)',
     'Module is <strong>installing...</strong>' => 'Modul sa <strong>inštaluje...</strong>',
     'Module license added!' => 'Licencia modulu bola pridaná!',
-    'Module license added!
-' => 'Licencia modulu bola pridaná!',
-    'Module license key cannot be empty!
-' => 'Licenčný kľúč modulu nemôže byť prázdny!',
-    'Module not found or enabled!
-' => 'Modul nebol nájdený alebo povolený!',
-    'Module not found!
-' => 'Modul sa nenašiel!',
     'More info' => 'Viac informácií',
     'New' => 'Nový',
     'No compatible module version found!' => 'Nenašla sa žiadna kompatibilná verzia modulu!',
@@ -116,7 +91,6 @@ The license was successfully removed!
     'Remove license key' => 'Odstrániť licenčný kľúč',
     'Save and update' => 'Uložiť a aktualizovať',
     'Search' => 'Hľadať',
-    'Search...' => 'Hľadať...',
     'Stop updating' => 'Zastaviť aktualizáciu',
     'Tags' => 'Značky',
     'The HumHub project does not guarantee the functionality, quality or the continuous development of this Module.' => 'Projekt HumHub nezaručuje funkčnosť, kvalitu ani neustály vývoj tohto modulu.',
@@ -136,5 +110,21 @@ The license was successfully removed!
     'Would you like to jump straight to it?' => 'Chceli by ste na to skočiť rovno?',
     'Your HumHub installation is up to date!' => 'Vaša inštalácia HumHub je aktuálna!',
     'Add License' => '',
+    'Are you sure you want to remove the license key?' => '',
+    'Buy non-curated module?' => '',
+    'Continue to checkout' => '',
+    'Description, Name, Keywords...' => '',
     'Edit License' => '',
+    'I understand and want to continue.' => '',
+    'If this Module is additionally marked as <strong>"Not curated"</strong>, it is not part of our curated selection and has not been reviewed by the HumHub team for quality, security or compatibility.' => '',
+    'Install anyway' => '',
+    'Install non-curated module?' => '',
+    'Module options' => '',
+    'Not curated' => '',
+    'Show non-curated modules' => '',
+    'Show non-curated modules?' => '',
+    'These modules are provided by independent partners and developers and are <strong>not part of our curated selection</strong>.<br><br>HumHub does not review them for quality, security or compatibility. Support, updates and licensing are handled by the respective provider.<br><br>Make sure you trust the source of a module before installing it.' => '',
+    'Yes, show non-curated modules' => '',
+    'You are about to install <strong>{moduleName}</strong>, a module that is not part of our curated selection.<br><br>It is provided by an independent partner or developer and has not been reviewed by the HumHub team for quality, security or compatibility. Support, updates and licensing are handled by the respective provider.<br><br>Make sure you trust the source before continuing.' => '',
+    'You are about to purchase <strong>{moduleName}</strong>, a module that is not part of our curated selection.<br><br>It is provided by an independent partner or developer and has not been reviewed by the HumHub team for quality, security or compatibility. Support, updates and licensing are handled by the respective provider.<br><br>Make sure you trust the source before continuing.' => '',
 ];

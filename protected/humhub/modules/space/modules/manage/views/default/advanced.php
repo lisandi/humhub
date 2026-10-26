@@ -5,9 +5,9 @@ use humhub\modules\admin\permissions\ManageSpaces;
 use humhub\modules\space\models\AdvancedSettings;
 use humhub\modules\space\models\Space;
 use humhub\modules\space\modules\manage\widgets\DefaultMenu;
-use humhub\modules\ui\form\widgets\SortOrderField;
 use humhub\widgets\bootstrap\Button;
 use humhub\widgets\form\ActiveForm;
+use humhub\widgets\form\SortOrderField;
 use yii\helpers\Url;
 
 /* @var $model AdvancedSettings */
@@ -34,6 +34,8 @@ use yii\helpers\Url;
         <?= $form->field($model, 'hideAbout')->checkbox(); ?>
         <?= $form->field($model, 'hideActivities')->checkbox(); ?>
         <?= $form->field($model, 'hideFollowers')->checkbox(); ?>
+        <?= $form->field($model, 'showTopicSidebar')->checkbox() ?>
+        <?= $form->field($model, 'topicSidebarSortOrder')->widget(SortOrderField::class) ?>
         <?= $form->field($model, 'indexUrl')->dropDownList($indexModuleSelection) ?>
         <?= $form->field($model, 'indexGuestUrl')->dropDownList($indexModuleSelection) ?>
         <?= $form->field($model, 'defaultStreamSort')->dropDownList(SpaceSettingsForm::defaultStreamSortOptions()) ?>

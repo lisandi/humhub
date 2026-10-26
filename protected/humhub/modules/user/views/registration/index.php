@@ -10,12 +10,13 @@ use humhub\widgets\SiteLogo;
 /**
  * @var $hForm Registration
  * @var $hasAuthClient bool
+ * @var $showRegistrationForm bool
  */
 
 $this->pageTitle = Yii::t('UserModule.auth', 'Create Account');
 ?>
 
-<div id="user-registration" class="container container-registration<?= AuthChoice::getClientsCount() > 1 ? ' has-multiple-auth-buttons' : '' ?>">
+<div id="user-registration" class="container container-registration">
     <?= SiteLogo::widget(['place' => SiteLogo::PLACE_LOGIN]) ?>
     <br/>
     <div id="create-account-form" class="panel panel-default animated bounceIn"
@@ -25,17 +26,19 @@ $this->pageTitle = Yii::t('UserModule.auth', 'Create Account');
         </div>
         <div class="panel-body">
             <?php if (!$hasAuthClient && AuthChoice::hasClients()): ?>
-                <?= AuthChoice::widget(['showOrDivider' => true]) ?>
+                <?= AuthChoice::widget(['showOrDivider' => $showRegistrationForm]) ?>
             <?php endif; ?>
 
-            <?php $form = ActiveForm::begin(['id' => 'registration-form', 'enableClientValidation' => false]); ?>
-            <?= Html::hiddenInput('ChooseLanguage[language]', Yii::$app->language) ?>
-            <?= $hForm->render($form); ?>
-            <?php ActiveForm::end(); ?>
+            <?php if ($showRegistrationForm): ?>
+                <?php $form = ActiveForm::begin(['id' => 'registration-form', 'enableClientValidation' => false]); ?>
+                <?= Html::hiddenInput('ChooseLanguage[language]', Yii::$app->language) ?>
+                <?= $hForm->render($form); ?>
+                <?php ActiveForm::end(); ?>
+            <?php endif; ?>
         </div>
     </div>
 
-    <?= LanguageChooser::widget(['vertical' => true, 'hideLabel' => true]) ?>
+    <?= LanguageChooser::widget(['vertical' => true]) ?>
 </div>
 
 <script <?= Html::nonce() ?>>

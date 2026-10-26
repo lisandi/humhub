@@ -33,16 +33,16 @@ class FileController extends Controller
         $fileSizes = [];
         /** @var File $file */
         foreach (File::find()->each() as $file) {
-            if (!is_file($file->store->get())) {
+            if (!$file->store->has()) {
                 continue;
             }
 
-            $fileSize += filesize($file->store->get());
+            $fileSize += $file->store->fileSize();
             foreach ($file->store->getVariants() as $variant) {
                 if (!isset($fileSizes[$variant])) {
                     $fileSizes[$variant] = 0;
                 }
-                $fileSizes[$variant] += filesize($file->store->get($variant));
+                $fileSizes[$variant] += $file->store->fileSize($variant);
             }
         }
 

@@ -14,7 +14,6 @@ use humhub\libs\UUIDValidator;
 use humhub\modules\admin\Module as AdminModule;
 use humhub\modules\admin\permissions\ManageAllContent;
 use humhub\modules\admin\permissions\ManageGroups;
-use humhub\modules\admin\permissions\ManageSpaces;
 use humhub\modules\admin\permissions\ManageUsers;
 use humhub\modules\content\components\ContentContainerActiveRecord;
 use humhub\modules\content\components\ContentContainerSettingsManager;
@@ -33,6 +32,7 @@ use humhub\modules\user\helpers\AuthHelper;
 use humhub\modules\user\models\fieldtype\BaseTypeVirtual;
 use humhub\modules\user\Module;
 use humhub\modules\user\services\PasswordRecoveryService;
+use humhub\modules\user\services\UserSourceService;
 use Yii;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
@@ -46,11 +46,10 @@ use yii\web\IdentityInterface;
  * @property int $status
  * @property string $username
  * @property string $email
- * @property string $auth_mode
+ * @property string $user_source
  * @property string $language
  * @property string $time_zone
  * @property string $last_login
- * @property string $authclient_id
  * @property string $auth_key
  * @property-read string $authKey
  * @property Auth[] $auths
@@ -74,10 +73,15 @@ class User extends ContentContainerActiveRecord implements IdentityInterface
     /**
      * User Status Flags
      */
-    public const STATUS_DISABLED = 0;
+    public const STATUS_DEACTIVATED = 0;
     public const STATUS_ENABLED = 1;
     public const STATUS_NEED_APPROVAL = 2;
     public const STATUS_SOFT_DELETED = 3;
+
+    /**
+     * @deprecated since 1.19, use {@see self::STATUS_DEACTIVATED} instead.
+     */
+    public const STATUS_DISABLED = self::STATUS_DEACTIVATED;
 
     /**
      * Visibility Modes
@@ -182,7 +186,7 @@ class User extends ContentContainerActiveRecord implements IdentityInterface
             [['guid'], UUIDValidator::class],
             [['guid'], 'unique'],
             [['time_zone'], 'validateTimeZone'],
-            [['auth_mode'], 'string', 'max' => 10],
+            [['user_source'], 'string', 'max' => 50],
             [['language'], 'string', 'max' => 20],
             ['language', 'in', 'range' => array_keys(Yii::$app->i18n->getAllowedLanguages()), 'except' => self::SCENARIO_APPROVE],
             [['email'], 'unique'],
@@ -203,6 +207,12 @@ class User extends ContentContainerActiveRecord implements IdentityInterface
      */
     public function isEmailRequired(): bool
     {
+        // A UserSource may declare email optional (e.g. federated users). The
+        // service resolves the source safely (falls back to LocalUserSource for
+        // an unknown/misconfigured source), so this never breaks a user save.
+        if (!UserSourceService::getForUser($this)->isEmailRequired()) {
+            return false;
+        }
         /* @var $userModule Module */
         $userModule = Yii::$app->getModule('user');
         return $userModule->emailRequired;
@@ -278,6 +288,27 @@ class User extends ContentContainerActiveRecord implements IdentityInterface
     }
 
     /**
+     * Resets the cached group memberships and the derived system-admin / group-manager
+     * flags. Call this after this user's group membership changed within the same request
+     * (e.g. via [[Group::addUser()]] / [[Group::removeUser()]]), so a subsequent
+     * [[isSystemAdmin()]] / [[getGroups()]] reflects the change instead of a stale,
+     * already-populated `groupUsers` relation.
+     *
+     * @since 1.19
+     */
+    public function invalidateGroupCache(): void
+    {
+        $this->_isSystemAdmin = null;
+        $this->_isGroupManager = null;
+
+        foreach (['groupUsers', 'groups', 'managerGroups'] as $relation) {
+            if ($this->isRelationPopulated($relation)) {
+                unset($this->$relation);
+            }
+        }
+    }
+
+    /**
      * @inheritdoc
      */
     public function __get($name)
@@ -339,7 +370,7 @@ class User extends ContentContainerActiveRecord implements IdentityInterface
             'email' => Yii::t('UserModule.base', 'Email'),
             'profile.firstname' => Yii::t('UserModule.profile', 'First name'),
             'profile.lastname' => Yii::t('UserModule.profile', 'Last name'),
-            'auth_mode' => Yii::t('UserModule.base', 'Auth Mode'),
+            'user_source' => Yii::t('UserModule.base', 'User Source'),
             'tags' => Yii::t('UserModule.base', 'Tags'),
             'language' => Yii::t('UserModule.base', 'Language'),
             'created_at' => Yii::t('UserModule.base', 'Created at'),
@@ -533,8 +564,9 @@ class User extends ContentContainerActiveRecord implements IdentityInterface
         if ($this->profile !== null) {
             $this->profile->softDelete();
         }
-        $this->getProfileImage()->delete();
-        $this->getProfileBannerImage()->delete();
+
+        $this->image->delete();
+        $this->bannerImage->delete();
 
         foreach ($this->moduleManager->getEnabled() as $module) {
             $this->moduleManager->disable($module);
@@ -556,7 +588,6 @@ class User extends ContentContainerActiveRecord implements IdentityInterface
             'email' => new Expression('NULL'),
             'username' => 'deleted-' . $this->id,
             'status' => User::STATUS_SOFT_DELETED,
-            'authclient_id' => new Expression('NULL'),
         ]);
 
         return true;
@@ -571,15 +602,14 @@ class User extends ContentContainerActiveRecord implements IdentityInterface
     public function beforeSave($insert)
     {
         if ($insert) {
-            if ($this->auth_mode == '') {
-                $passwordAuth = new PasswordAuth();
-                $this->auth_mode = $passwordAuth->getId();
+            if (empty($this->user_source)) {
+                $this->user_source = PasswordAuth::ID;
             }
 
             if (AuthHelper::isGuestAccessEnabled()) {
                 // Set user profile default visibility
                 $defaultUserProfileVisibility = Yii::$app->getModule('user')->settings->get('auth.defaultUserProfileVisibility');
-                if (array_key_exists($defaultUserProfileVisibility, User::getVisibilityOptions())) {
+                if ($defaultUserProfileVisibility !== null && array_key_exists($defaultUserProfileVisibility, User::getVisibilityOptions())) {
                     $this->visibility = $defaultUserProfileVisibility;
                 }
             }
@@ -774,6 +804,10 @@ class User extends ContentContainerActiveRecord implements IdentityInterface
             return false;
         }
 
+        if ($user->isCurrentUser() && !Yii::$app->user->impersonation->canAccessPrivateContent()) {
+            return false;
+        }
+
         // Self
         if ($user->is($this)) {
             return true;
@@ -785,27 +819,6 @@ class User extends ContentContainerActiveRecord implements IdentityInterface
         }
 
         return false;
-    }
-
-    /**
-     * Checks if the user is allowed to view all content
-     *
-     * @param string|null $containerClass class name of the content container
-     * @return bool
-     * @throws InvalidConfigException
-     * @deprecated since 1.17 use canManageAllContent() instead
-     * @since 1.8
-     */
-    public function canViewAllContent(?string $containerClass = null): bool
-    {
-        /** @var \humhub\modules\content\Module $module */
-        $module = Yii::$app->getModule('content');
-
-        return $module->adminCanViewAllContent && (
-            $this->isSystemAdmin()
-                || ($containerClass === Space::class && (new PermissionManager(['subject' => $this]))->can(ManageSpaces::class))
-                || ($containerClass === static::class && (new PermissionManager(['subject' => $this]))->can(ManageUsers::class))
-        );
     }
 
     /**
@@ -846,18 +859,6 @@ class User extends ContentContainerActiveRecord implements IdentityInterface
     }
 
     /**
-     * User can approve other users
-     *
-     * @return bool
-     * @throws InvalidConfigException
-     * @deprecated since 1.18
-     */
-    public function canApproveUsers(): bool
-    {
-        return $this->canManageUsers();
-    }
-
-    /**
      * User can manage other users
      *
      * @return bool
@@ -869,34 +870,6 @@ class User extends ContentContainerActiveRecord implements IdentityInterface
         return $this->isSystemAdmin()
             || (new PermissionManager(['subject' => $this]))->can([ManageUsers::class, ManageGroups::class])
             || $this->isGroupManager();
-    }
-
-    /**
-     * Determines if this user can impersonate the given user.
-     *
-     * @param self $user
-     * @return bool
-     * @since 1.10
-     */
-    public function canImpersonate(self $user): bool
-    {
-        /* @var AdminModule $adminModule */
-        $adminModule = Yii::$app->getModule('admin');
-        if (!$adminModule->allowUserImpersonate) {
-            return false;
-        }
-
-        if ($user->id == $this->id) {
-            return false;
-        }
-
-        // A non System-Administrator can never impersonate a System Administrator - keep this
-        // in sync with UserController::checkUserAccess(), which enforces the same rule server-side.
-        if ($user->isSystemAdmin() && !$this->isSystemAdmin()) {
-            return false;
-        }
-
-        return (new PermissionManager(['subject' => $this]))->can(ManageUsers::class);
     }
 
     /**
@@ -1002,7 +975,7 @@ class User extends ContentContainerActiveRecord implements IdentityInterface
      */
     public function mustChangePassword()
     {
-        return !Yii::$app->user->isImpersonated && (bool)$this->getSettings()->get('mustChangePassword');
+        return !Yii::$app->user->impersonation->isActive() && (bool)$this->getSettings()->get('mustChangePassword');
     }
 
     /**
@@ -1024,7 +997,7 @@ class User extends ContentContainerActiveRecord implements IdentityInterface
     {
         $options = [
             self::STATUS_ENABLED => Yii::t('AdminModule.user', 'Enabled'),
-            self::STATUS_DISABLED => Yii::t('AdminModule.user', 'Disabled'),
+            self::STATUS_DEACTIVATED => Yii::t('AdminModule.user', 'Deactivated'),
             self::STATUS_NEED_APPROVAL => Yii::t('AdminModule.user', 'Unapproved'),
         ];
 
@@ -1056,4 +1029,5 @@ class User extends ContentContainerActiveRecord implements IdentityInterface
     {
         return new PasswordRecoveryService($this);
     }
+
 }

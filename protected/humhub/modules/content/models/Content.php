@@ -16,13 +16,16 @@ use humhub\interfaces\ArchiveableInterface;
 use humhub\interfaces\EditableInterface;
 use humhub\interfaces\ViewableInterface;
 use humhub\libs\UUIDValidator;
-use humhub\modules\content\activities\ContentCreated as ActivitiesContentCreated;
+use humhub\modules\activity\models\Activity;
+use humhub\modules\activity\services\ActivityManager;
+use humhub\modules\content\activities\ContentCreatedActivity;
 use humhub\modules\content\components\ContentActiveRecord;
 use humhub\modules\content\components\ContentContainerActiveRecord;
 use humhub\modules\content\components\ContentContainerModule;
 use humhub\modules\content\events\ContentEvent;
 use humhub\modules\content\events\ContentStateEvent;
 use humhub\modules\content\interfaces\ContentOwner;
+use humhub\modules\content\interfaces\ContentProvider;
 use humhub\modules\content\interfaces\SoftDeletable;
 use humhub\modules\content\live\NewContent;
 use humhub\modules\content\notifications\ContentCreated as NotificationsContentCreated;
@@ -31,7 +34,6 @@ use humhub\modules\content\permissions\CreatePublicContent;
 use humhub\modules\content\permissions\ManageContent;
 use humhub\modules\content\services\ContentSearchService;
 use humhub\modules\content\services\ContentStateService;
-use humhub\modules\content\services\ContentTagService;
 use humhub\modules\notification\models\Notification;
 use humhub\modules\space\models\Space;
 use humhub\modules\user\components\PermissionManager;
@@ -142,15 +144,25 @@ class Content extends ActiveRecord implements Movable, ContentOwner, Archiveable
     protected $_container = null;
 
     /**
-     * @var bool flag to disable the creation of default social activities like activity and notifications in afterSave() at content creation.
-     * @deprecated since v1.2.3 use ContentActiveRecord::silentContentCreation instead.
-     */
-    public $muteDefaultSocialActivities = false;
-
-    /**
      * @event Event is used when a Content state is changed.
      */
     public const EVENT_STATE_CHANGED = 'changedState';
+
+    /**
+     * @event ContentEvent triggered right before a Content record is hard deleted.
+     *
+     * Content addon modules (e.g. Comment, Like) that reference `content_id` with a
+     * restrictive foreign key must clean up their records on this event. This is
+     * required in addition to `ContentActiveRecord::EVENT_BEFORE_DELETE`, because that
+     * event is only triggered while deleting the polymorphic content object itself
+     * (e.g. a Post). When a Content record is hard deleted directly - e.g. because its
+     * polymorphic content object no longer exists (see IntegrityController) -
+     * `ContentActiveRecord::EVENT_BEFORE_DELETE` never fires and addon cleanup would
+     * otherwise be skipped, causing foreign key constraint violations.
+     *
+     * @since 1.19
+     */
+    public const EVENT_BEFORE_HARD_DELETE = 'beforeHardDelete';
 
     /**
      * @inheritdoc
@@ -304,6 +316,10 @@ class Content extends ActiveRecord implements Movable, ContentOwner, Archiveable
             }
         }
 
+        if (!$insert && array_key_exists('visibility', $changedAttributes)) {
+            ActivityManager::afterContentChange($this);
+        }
+
         (new ContentSearchService($this))->update();
 
         parent::afterSave($insert, $changedAttributes);
@@ -372,6 +388,7 @@ class Content extends ActiveRecord implements Movable, ContentOwner, Archiveable
      */
     private function notifyContentCreated()
     {
+        /** @var ContentProvider $contentSource */
         $contentSource = $this->getPolymorphicRelation();
 
         $userQuery = Yii::$app->notification->getFollowers($this);
@@ -387,43 +404,27 @@ class Content extends ActiveRecord implements Movable, ContentOwner, Archiveable
             ->about($contentSource)
             ->sendBulk($userQuery);
 
-        ActivitiesContentCreated::instance()
-            ->from($this->createdBy)
-            ->about($contentSource)->save();
+        ActivityManager::dispatch(ContentCreatedActivity::class, $contentSource, $this->createdBy);
     }
 
     /**
      * Marks this content for deletion (soft delete).
      * Use `hardDelete()` method to delete a content immediately.
      *
-     * @return bool
      * @inheritdoc
+     * @deprecated since 1.19 (will throw error in future)
      */
     public function delete()
     {
         return $this->softDelete();
+        // TODO: since 1.20
+        // throw new Exception('Forbidden Content->delete()! Use Content->getPolymorphicRelation()->delete() instead!');
     }
 
     /**
      * @inheritdoc
-     */
-    public function afterDelete()
-    {
-        // Try to delete the underlying object (Post, Question, Task, ...)
-        $this->resetPolymorphicRelation();
-
-        /** @var ContentActiveRecord $record */
-        $record = $this->getPolymorphicRelation();
-
-        if ($record) {
-            $record->hardDelete();
-        }
-
-        parent::afterDelete();
-    }
-
-    /**
-     * @inheritdoc
+     * @deprecated since 1.19
+     * @hint Use event ContentActiveRecord::EVENT_BEFORE_SOFT_DELETE instead
      */
     public function beforeSoftDelete(): bool
     {
@@ -435,28 +436,35 @@ class Content extends ActiveRecord implements Movable, ContentOwner, Archiveable
 
     /**
      * @inheritdoc
+     * @deprecated since 1.19 Use ContentActiveRecord::softDelete() instead
      */
     public function softDelete(): bool
     {
-        if (!$this->beforeSoftDelete()) {
-            return false;
-        }
+        $record = $this->getPolymorphicRelation();
+        return $record instanceof ContentActiveRecord ? $record->softDelete() : false;
+    }
 
+    /**
+     * Marks the Content as deleted.
+     * (It must be called only from ContentActiveRecord)
+     *
+     * @return bool
+     * @since 1.19
+     */
+    public function softDeleteInternal(): bool
+    {
         Notification::deleteAll([
             'source_class' => PolymorphicRelation::getObjectModel($this),
             'source_pk' => $this->getPrimaryKey(),
         ]);
 
-        if (!$this->getStateService()->delete()) {
-            return false;
-        }
-
-        $this->afterSoftDelete();
-        return true;
+        return $this->getStateService()->delete();
     }
 
     /**
      * @inheritdoc
+     * @deprecated since 1.19
+     * @hint Use event ContentActiveRecord::EVENT_AFTER_SOFT_DELETE instead
      */
     public function afterSoftDelete()
     {
@@ -465,14 +473,34 @@ class Content extends ActiveRecord implements Movable, ContentOwner, Archiveable
 
     /**
      * Deletes this content immediately and permanently
+     * including the underlying record and its files.
      *
      * @return bool
      * @throws Throwable
      * @throws StaleObjectException
      * @since 1.14
+     * @deprecated since 1.19 ContentActiveRecord::hardDelete() instead
      */
     public function hardDelete(): bool
     {
+        $record = $this->getPolymorphicRelation();
+
+        return $record === null ? $this->hardDeleteInternal() : $record->hardDelete();
+    }
+
+    /**
+     * Deletes this content immediately and permanently.
+     * (It must be called only from ContentActiveRecord)
+     *
+     * @return bool
+     * @since 1.19
+     */
+    public function hardDeleteInternal(): bool
+    {
+        $this->trigger(self::EVENT_BEFORE_HARD_DELETE, new ContentEvent(['content' => $this]));
+
+        Activity::deleteAll(['content_id' => $this->id]);
+
         return parent::delete() !== false;
     }
 
@@ -655,6 +683,7 @@ class Content extends ActiveRecord implements Movable, ContentOwner, Archiveable
                     $model->afterMove($container);
                 }
             });
+            ActivityManager::afterContentChange($this);
         }
 
         return $move;
@@ -787,7 +816,18 @@ class Content extends ActiveRecord implements Movable, ContentOwner, Archiveable
     {
         try {
             if (method_exists($this->getPolymorphicRelation(), 'getUrl')) {
-                return $this->getPolymorphicRelation()->getUrl($scheme);
+                $url = $this->getPolymorphicRelation()->getUrl($scheme);
+
+                // getUrl() is an open extension point; most implementations
+                // (e.g. Post) currently ignore $scheme and return a relative URL.
+                // Enforce an absolute URL when a scheme was requested, unless the
+                // implementation already returned one. Once the models honor
+                // $scheme themselves, this becomes a no-op.
+                if ($scheme && !str_starts_with((string) $url, 'http')) {
+                    $url = Url::to($url, $scheme);
+                }
+
+                return $url;
             }
         } catch (IntegrityException $e) {
             Yii::error($e->getMessage(), 'content');
@@ -864,29 +904,6 @@ class Content extends ActiveRecord implements Movable, ContentOwner, Archiveable
         return $this->hasMany($tagClass, ['id' => 'tag_id'])
             ->via('tagRelations')
             ->orderBy($tagClass::tableName() . '.sort_order');
-    }
-
-    /**
-     * Adds a new ContentTagRelation for this content and the given $tag instance.
-     *
-     * @param ContentTag $tag
-     * @return bool if the provided tag is part of another ContentContainer
-     * @deprecated since 1.15
-     */
-    public function addTag(ContentTag $tag)
-    {
-        return (new ContentTagService($this))->addTag($tag);
-    }
-
-    /**
-     * Adds the given ContentTag array to this content.
-     *
-     * @param $tags ContentTag[]
-     * @deprecated since 1.15
-     */
-    public function addTags($tags)
-    {
-        (new ContentTagService($this))->addTags($tags);
     }
 
     /**
@@ -1016,6 +1033,10 @@ class Content extends ActiveRecord implements Movable, ContentOwner, Archiveable
             return true;
         }
 
+        if (!$this->isPublic() && $user->isCurrentUser() && !Yii::$app->user->impersonation->canAccessPrivateContent()) {
+            return false;
+        }
+
         // User can access own content
         if ($this->created_by === $user->id) {
             return true;
@@ -1119,16 +1140,5 @@ class Content extends ActiveRecord implements Movable, ContentOwner, Archiveable
     public function getStateService(): ContentStateService
     {
         return new ContentStateService(['content' => $this]);
-    }
-
-    /**
-     * @param int|string|null $state
-     * @param array $options Additional options depending on state
-     * @since 1.14
-     * @deprecated Use $this->getStateService()->set(). It will be deleted in v1.15.
-     */
-    public function setState($state, array $options = [])
-    {
-        $this->getStateService()->set($state, $options);
     }
 }

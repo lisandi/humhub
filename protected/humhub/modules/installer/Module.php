@@ -65,10 +65,13 @@ class Module extends \humhub\components\Module
      */
     public function beforeAction($action)
     {
+        // The installer must never be indexed by search engines
+        Yii::$app->response->headers->set('X-Robots-Tag', 'noindex, nofollow');
 
         // Block installer, when it's marked as installed
+        // 404 instead of 500: crawlers hitting the URL must not fill the error log
         if (Yii::$app->installationState->hasState(InstallationState::STATE_INSTALLED)) {
-            throw new HttpException(500, 'HumHub is already installed!');
+            throw new HttpException(404, 'HumHub is already installed!');
         }
 
         Yii::$app->controller->enableCsrfValidation = false;
@@ -116,6 +119,15 @@ class Module extends \humhub\components\Module
             'sort' => 100,
             'url' => Url::to(['/installer/config/basic']),
             'isCurrent' => fn() => Yii::$app->controller->id == 'config' && Yii::$app->controller->action->id == 'basic',
+        ];
+
+        /**
+         * Step: Mail (SMTP) transport configuration
+         */
+        $this->configSteps['mail'] = [
+            'sort' => 120,
+            'url' => Url::to(['/installer/config/mail']),
+            'isCurrent' => fn() => Yii::$app->controller->id == 'config' && Yii::$app->controller->action->id == 'mail',
         ];
 
         /**

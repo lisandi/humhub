@@ -24,7 +24,7 @@ use yii\base\Widget;
 class FollowButton extends Widget
 {
     /**
-     * @var User
+     * @var Space
      */
     public $space;
 
@@ -121,6 +121,11 @@ class FollowButton extends Widget
         $this->unfollowOptions['data-action-confirm'] = Yii::t('SpaceModule.base', 'Would you like to unfollow Space {spaceName}?', [
             '{spaceName}' => '<strong>' . Html::encode($this->space->getDisplayName()) . '</strong>',
         ]);
+
+        if ($this->space->isFollowedByUser()) {
+            $this->unfollowOptions['aria-pressed'] = 'true';
+            $this->followOptions['aria-pressed'] = 'false';
+        }
 
         $module = Yii::$app->getModule('space');
 

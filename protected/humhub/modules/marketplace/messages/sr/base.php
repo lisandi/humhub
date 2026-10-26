@@ -2,12 +2,6 @@
 
 return [
     '
-Module successfully disabled!
-' => 'Modul je uspešno onemogućen!',
-    '
-Module successfully enabled!
-' => 'Modul je uspešno omogućen!',
-    '
 No active Professional Edition license found!
 ' => 'Nije pronadjena aktivna licenca za profesionalno izdanje',
     '
@@ -21,12 +15,6 @@ The license was successfully activated!
 The license was successfully removed!
 
 ' => 'Licenca je uspešno uklonjena',
-    '--- Disable module: {moduleId} ---
-
-' => '--- Onemogući modul: {moduleId} ---',
-    '--- Enable module: {moduleId} ---
-
-' => '--- Omogući modul: {moduleId} ---',
     '<strong>Activate</strong> your Professional Edition' => '<strong>Aktiviraj</strong> vašu profesionalnu verziju',
     '<strong>General</strong> Settings' => 'Generalna podešavanja',
     'A new update is available (HumHub %version%)!' => 'Novo ažuriranje je dostupno',
@@ -39,9 +27,9 @@ The license was successfully removed!
     'Available Updates' => 'Dostupna ažuriranja',
     'Buy' => 'Kupi',
     'Buy (%price%)' => 'Kupi (%price%)',
+    'Cancel' => 'Poništi',
     'Categories' => 'Categorije',
     'Changelog' => 'Changelog',
-    'Community' => 'Zajednica',
     'Configure' => 'Konfiguriši',
     'Could not connect to HumHub API!' => 'Nije bilo moguće povezati se na Humhub API',
     'Could not connect to license server!' => 'Ne mogu se povezati s Licencnim serverom!',
@@ -58,7 +46,6 @@ The license was successfully removed!
     'Find all the modules you can add to your network in our HumHub Marketplace. Discover numerous add-ons and features that customize the software and give you the possibility to configure your network to your needs.' => 'Nadji sve module koje možeš da dodaš tvojoj mreži u našoj prodavnici. Otkrij brojne dodatke i funkcionalnosti koje prilagodjavaju softver i daju ti mogućnost da konfigurišeš tvoju mrežu tvojim potrebama',
     'General Settings' => 'Opšte postavke',
     'Great!' => 'Odlično',
-    'If this Module is additionally marked as <strong>"Community"</strong> it is neither tested nor monitored by the HumHub project team.' => 'Ako je ovaj modul dodatno označen kao <strong>"Zajednica" </strong> projektni tim HumHub niti ga testira niti nadgleda.',
     'Information' => 'Informacija',
     'Install' => 'Instaliraj',
     'Installed' => 'Instalirano',
@@ -80,8 +67,6 @@ The license was successfully removed!
     'Module download failed! (%error%)' => 'Preuzimanje modula nije uspjelo! (%error%)',
     'Module is <strong>installing...</strong>' => 'Module se <strong>instalira...</strong>',
     'Module license added!' => 'Dodata je licenca modula',
-    'Module not found!
-' => 'Modul nije pronađen!',
     'More info' => 'Više info',
     'New' => 'Novi',
     'No compatible module version found!' => 'Nisu pronađene kompatibilne verzije modula!',
@@ -100,7 +85,6 @@ The license was successfully removed!
     'Remove license key' => 'Uklonite ključ licence',
     'Save and update' => 'Spremi i ažuriraj',
     'Search' => 'Pretraži',
-    'Search...' => 'Pretraga...',
     'Stop updating' => 'Prestani da osvežavaš',
     'Tags' => 'Tagovi',
     'The HumHub project does not guarantee the functionality, quality or the continuous development of this Module.' => 'Projekt HumHub ne garantuje funkcionalnost, kvalitet ili kontinuirani razvoj ovog modula.',
@@ -119,22 +103,28 @@ The license was successfully removed!
     'Add License' => '',
     'Advanced Module Search' => '',
     'All modules' => '',
-    'Could not connect to HumHub API!
-' => '',
+    'Are you sure you want to remove the license key?' => '',
+    'Buy non-curated module?' => '',
+    'Continue to checkout' => '',
+    'Description, Name, Keywords...' => '',
     'Edit License' => '',
     'Enable now' => '',
-    'Invalid module license key!
-' => '',
+    'I understand and want to continue.' => '',
+    'If this Module is additionally marked as <strong>"Not curated"</strong>, it is not part of our curated selection and has not been reviewed by the HumHub team for quality, security or compatibility.' => '',
+    'Install anyway' => '',
+    'Install non-curated module?' => '',
     'Module <strong>enabled</strong>' => '',
     'Module Administration' => '',
-    'Module license added!
-' => '',
-    'Module license key cannot be empty!
-' => '',
-    'Module not found or enabled!
-' => '',
+    'Module options' => '',
     'No, thank you!' => '',
+    'Not curated' => '',
+    'Show non-curated modules' => '',
+    'Show non-curated modules?' => '',
+    'These modules are provided by independent partners and developers and are <strong>not part of our curated selection</strong>.<br><br>HumHub does not review them for quality, security or compatibility. Support, updates and licensing are handled by the respective provider.<br><br>Make sure you trust the source of a module before installing it.' => '',
     'Well done! To make the module available within your network, you will also need to enable it. Do you want to enable it now?' => '',
     'Well done! You have successfully installed and enabled the module!' => '',
     'Without category' => '',
+    'Yes, show non-curated modules' => '',
+    'You are about to install <strong>{moduleName}</strong>, a module that is not part of our curated selection.<br><br>It is provided by an independent partner or developer and has not been reviewed by the HumHub team for quality, security or compatibility. Support, updates and licensing are handled by the respective provider.<br><br>Make sure you trust the source before continuing.' => '',
+    'You are about to purchase <strong>{moduleName}</strong>, a module that is not part of our curated selection.<br><br>It is provided by an independent partner or developer and has not been reviewed by the HumHub team for quality, security or compatibility. Support, updates and licensing are handled by the respective provider.<br><br>Make sure you trust the source before continuing.' => '',
 ];

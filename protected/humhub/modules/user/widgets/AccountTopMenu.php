@@ -13,6 +13,7 @@ use humhub\modules\admin\widgets\AdminMenu;
 use humhub\modules\ui\menu\DropdownDivider;
 use humhub\modules\ui\menu\MenuLink;
 use humhub\modules\ui\menu\widgets\Menu;
+use humhub\modules\user\controllers\AuthController;
 use humhub\modules\user\models\User;
 use humhub\widgets\modal\ModalButton;
 use Yii;
@@ -44,7 +45,7 @@ class AccountTopMenu extends Menu
     {
         if (Yii::$app->user->isGuest) {
 
-            $signUpText = Yii::$app->getModule('user')->settings->get('auth.anonymousRegistration')
+            $signUpText = AuthController::isSelfRegistrationEnabled()
                 ? Yii::t('UserModule.base', 'Sign in / up')
                 : Yii::t('UserModule.base', 'Sign in');
 
@@ -106,7 +107,7 @@ class AccountTopMenu extends Menu
             'sortOrder' => 700,
         ]));
 
-        if (Yii::$app->user->isImpersonated) {
+        if (Yii::$app->user->impersonation->isActive()) {
             $this->addEntry(new MenuLink([
                 'label' => Yii::t('base', 'Stop impersonation'),
                 'id' => 'account-login',

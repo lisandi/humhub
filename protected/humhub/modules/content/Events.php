@@ -41,7 +41,8 @@ class Events extends BaseObject
 
         // Delete user profile content on soft delete
         foreach (Content::findAll(['contentcontainer_id' => $event->user->contentcontainer_id]) as $content) {
-            $content->hardDelete();
+            $record = $content->getPolymorphicRelation();
+            $record === null ? $content->hardDeleteInternal() : $record->hardDelete();
         }
     }
 
@@ -54,7 +55,8 @@ class Events extends BaseObject
     {
         $user = $event->sender;
         foreach (Content::findAll(['created_by' => $user->id]) as $content) {
-            $content->hardDelete();
+            $record = $content->getPolymorphicRelation();
+            $record === null ? $content->hardDeleteInternal() : $record->hardDelete();
         }
     }
 
@@ -88,15 +90,18 @@ class Events extends BaseObject
         $integrityController->showTestHeadline('Content Objects (' . Content::find()->count() . ' entries)');
         foreach (Content::find()->each() as $content) {
             /* @var Content $content */
-            if ($content->createdBy == null) {
-                if ($integrityController->showFix('Deleting content id ' . $content->id . ' of type ' . $content->object_model . ' without valid user!')) {
-                    $content->hardDelete();
-                }
+            if (
+                !$content->getCreatedBy()->exists()
+                && $integrityController->showFix('Deleting content id ' . $content->id . ' of type ' . $content->object_model . ' without valid user!')
+            ) {
+                $content->getPolymorphicRelation()?->hardDelete();
             }
-            if ($content->getPolymorphicRelation() === null) {
-                if ($integrityController->showFix('Deleting content id ' . $content->id . ' of type ' . $content->object_model . ' without valid content object!')) {
-                    $content->hardDelete();
-                }
+
+            if (
+                $content->getPolymorphicRelation() === null
+                && $integrityController->showFix('Deleting content id ' . $content->id . ' of type ' . $content->object_model . ' without valid content object!')
+            ) {
+                $content->hardDeleteInternal();
             }
         }
     }

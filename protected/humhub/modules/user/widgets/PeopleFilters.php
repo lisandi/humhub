@@ -55,9 +55,15 @@ class PeopleFilters extends DirectoryFilters
             'title' => Yii::t('UserModule.base', 'Search'),
             'placeholder' => Yii::t('UserModule.base', 'Description, Name, Tags...'),
             'type' => 'text',
-            'inputOptions' => ['autocomplete' => 'off'],
+            'inputOptions' => ['autocomplete' => 'search'],
             'wrapperClass' => 'flex-fill form-search-filter-keyword',
-            'afterInput' => Html::submitButton('<span class="fa fa-search"></span>', ['class' => 'form-button-search']),
+            'afterInput' => Html::submitButton('<span class="fa fa-search" aria-hidden="true"></span>', [
+                'class' => 'form-button-search',
+                'aria-label' => Yii::t('UserModule.base', 'Search'),
+                // Pressing Enter in the keyword field already submits the form, so this
+                // button doesn't need its own tab stop.
+                'tabindex' => '-1',
+            ]),
             'sortOrder' => 100,
         ]);
 

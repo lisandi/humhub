@@ -11,6 +11,7 @@ namespace humhub\modules\user\models;
 use humhub\components\access\ControllerAccess;
 use humhub\components\ActiveRecord;
 use humhub\modules\space\models\Space;
+use humhub\modules\user\components\MaintenanceModeGate;
 use humhub\modules\user\Module;
 use Yii;
 use yii\base\InvalidConfigException;
@@ -131,7 +132,7 @@ class Invite extends ActiveRecord
 
     public function selfInvite()
     {
-        if (Yii::$app->settings->get('maintenanceMode')) {
+        if (MaintenanceModeGate::isActive()) {
             Yii::$app->getView()->warn(ControllerAccess::getMaintenanceModeWarningText());
             return false;
         }
@@ -322,13 +323,14 @@ class Invite extends ActiveRecord
     }
 
     /**
-     * Allow users to invite themself
+     * Allow users to invite themself.
      *
      * @return bool allow self invite
+     * @deprecated since 1.19 — use {@see \humhub\modules\user\controllers\AuthController::isSelfRegistrationEnabled()}
      */
     public function allowSelfInvite()
     {
-        return (!Yii::$app->settings->get('maintenanceMode') && Yii::$app->getModule('user')->settings->get('auth.anonymousRegistration'));
+        return \humhub\modules\user\controllers\AuthController::isSelfRegistrationEnabled();
     }
 
     /**

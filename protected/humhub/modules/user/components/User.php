@@ -12,7 +12,6 @@ use humhub\helpers\DeviceDetectorHelper;
 use humhub\helpers\MobileAppHelper;
 use humhub\libs\BasePermission;
 use humhub\modules\user\events\UserEvent;
-use humhub\modules\user\helpers\AuthHelper;
 use humhub\modules\user\models\User as UserModel;
 use humhub\modules\user\services\AuthClientUserService;
 use Throwable;
@@ -26,7 +25,7 @@ use yii\helpers\Url;
  *
  * @property UserModel|null $identity
  * @method  UserModel|null getIdentity(bool $autoRenew = true)
- * @mixin Impersonator
+ * @property Impersonation $impersonation the impersonation state and configuration, see [[getImpersonation()]]
  * @author luke
  */
 class User extends \yii\web\User
@@ -46,15 +45,7 @@ class User extends \yii\web\User
 
     private ?AuthClientUserService $authClientUserService = null;
 
-    /**
-     * @inheritdoc
-     */
-    public function behaviors()
-    {
-        return [
-            Impersonator::class,
-        ];
-    }
+    private Impersonation|array $_impersonation = [];
 
     public function isAdmin(): bool
     {
@@ -160,6 +151,9 @@ class User extends \yii\web\User
     {
         $identity->updateAttributes(['last_login' => date('Y-m-d G:i:s')]);
 
+        // A regular login never continues an impersonation left over in the session
+        $this->removeImpersonationMarker();
+
         parent::afterLogin($identity, $cookieBased, $duration);
     }
 
@@ -172,18 +166,58 @@ class User extends \yii\web\User
             Yii::$app->session->set(MobileAppHelper::SESSION_VAR_SHOW_OPENER, 1);
         }
 
+        // The session may survive the logout (auth timeout, pending single logout)
+        $this->removeImpersonationMarker();
+
         parent::afterLogout($identity);
     }
 
-    /**
-     * Checks if the system configuration allows access for guests
-     *
-     * @return bool is guest access enabled and allowed
-     * @deprecated since 1.4
-     */
-    public static function isGuestAccessEnabled()
+    private function removeImpersonationMarker(): void
     {
-        return AuthHelper::isGuestAccessEnabled();
+        if ($this->enableSession && Yii::$app->has('session')) {
+            Yii::$app->session->remove(Impersonation::SESSION_KEY);
+        }
+    }
+
+    /**
+     * @return Impersonation the impersonation state and configuration of this user component
+     * @since 1.19
+     */
+    public function getImpersonation(): Impersonation
+    {
+        if (!$this->_impersonation instanceof Impersonation) {
+            $this->_impersonation = Yii::createObject(array_merge(
+                ['class' => Impersonation::class],
+                $this->_impersonation,
+                ['user' => $this],
+            ));
+        }
+
+        return $this->_impersonation;
+    }
+
+    /**
+     * @param array $config the [[Impersonation]] configuration, e.g. `['allowPrivateContentAccess' => true]`
+     * @since 1.19
+     */
+    public function setImpersonation(array $config)
+    {
+        $this->_impersonation = $config;
+    }
+
+    /**
+     * @return int duration in seconds of the current auto-login (remember me) cookie, `0` when there is none
+     * @since 1.19
+     */
+    public function getAuthCookieDuration(): int
+    {
+        if (!$this->enableAutoLogin || Yii::$app->request->isConsoleRequest) {
+            return 0;
+        }
+
+        $cookie = $this->getIdentityAndDurationFromCookie();
+
+        return empty($cookie['duration']) ? 0 : (int)$cookie['duration'];
     }
 
     /**
@@ -193,22 +227,14 @@ class User extends \yii\web\User
     {
         $this->trigger(self::EVENT_BEFORE_SWITCH_IDENTITY, new UserEvent(['user' => $identity]));
 
-        if (empty($duration) && !Yii::$app->request->isConsoleRequest) {
-            // Try to use login duration from the current session, e.g. on impersonate action
-            $cookie = $this->getIdentityAndDurationFromCookie();
-            $duration = empty($cookie['duration']) ? 0 : $cookie['duration'];
+        if (empty($duration) && !$this->getImpersonation()->isActive()) {
+            // Keep the auto-login duration across identity switches, but never issue an auto-login
+            // cookie for an impersonated identity: it would outlive the impersonation state in the
+            // session and resurrect the impersonated identity as a regular login.
+            $duration = $this->getAuthCookieDuration();
         }
 
         parent::switchIdentity($identity, $duration);
-    }
-
-    /**
-     * @return bool
-     * @deprecated since 1.14
-     */
-    public function canDeleteAccount()
-    {
-        return ($this->getAuthClientUserService())->canDeleteAccount();
     }
 
     /**
@@ -272,4 +298,5 @@ class User extends \yii\web\User
 
         return $this->authClientUserService;
     }
+
 }

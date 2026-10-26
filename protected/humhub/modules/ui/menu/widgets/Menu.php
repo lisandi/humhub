@@ -9,14 +9,14 @@
 namespace humhub\modules\ui\menu\widgets;
 
 use humhub\components\Event;
-use humhub\components\View;
 use humhub\libs\Sort;
 use humhub\modules\ui\menu\MenuEntry;
 use humhub\modules\ui\menu\MenuLink;
 use humhub\widgets\BaseStack;
 use humhub\widgets\JsWidget;
-use Yii;
+use yii\helpers\Json;
 use yii\helpers\Url;
+use yii\web\View;
 
 /**
  * Base class for menus and navigations.
@@ -82,12 +82,6 @@ abstract class Menu extends JsWidget
             return '';
         }
 
-        if ($this->template === '@humhub/widgets/views/leftNavigation') {
-            Yii::debug('Deprecated usage of leftNavigation view!');
-            $this->template = '@ui/menu/widgets/views/left-navigation.php';
-        }
-
-
         return $this->render($this->template, $this->getViewParams());
     }
 
@@ -102,9 +96,6 @@ abstract class Menu extends JsWidget
             'menu' => $this,
             'entries' => $this->getSortedEntries(),
             'options' => $this->getOptions(),
-            // Deprecated
-            'items' => $this->getItems(),
-            'numItems' => count($this->getItems()),
         ];
     }
 
@@ -198,57 +189,6 @@ abstract class Menu extends JsWidget
         foreach ($this->entries as $currentEntry) {
             $currentEntry->setIsActive(($currentEntry->compare($entry)));
         }
-    }
-
-    /**
-     * -------------------------------------------------------------------
-     *                       Compatibility Layer
-     * -------------------------------------------------------------------
-     */
-
-    /**
-     * @param array $entryArray
-     * @deprecated since 1.4
-     */
-    public function addItem($entryArray)
-    {
-        $entry = MenuLink::createByArray($entryArray);
-        $this->addEntry($entry);
-    }
-
-    /**
-     * @return array item group
-     * @deprecated since 1.4 not longer supported!
-     */
-    public function addItemGroup($itemGroup)
-    {
-        //throw new InvalidCallException('Item groups are not longer supported');
-    }
-
-    /**
-     * @return array the item group
-     * @deprecated since 1.4
-     */
-    public function getItemGroups()
-    {
-        return [
-            ['id' => 'default', 'label' => '', 'icon' => '', 'sortOrder' => 1000],
-        ];
-    }
-
-    /**
-     * @return array the menu items as array list
-     * @deprecated since 1.4
-     */
-    public function getItems($group = '')
-    {
-        $items = [];
-        foreach ($this->entries as $entry) {
-            if ($entry instanceof MenuLink) {
-                $items[] = $entry->toArray();
-            }
-        }
-        return $items;
     }
 
     /**
@@ -354,41 +294,35 @@ abstract class Menu extends JsWidget
     }
 
     /**
-     * @return array the menu entry as array
-     * @deprecated since 1.4
+     * Tells the client which entry is active for the current request.
+     *
+     * Needed for pjax navigations: the menu sits outside the pjax container and is not
+     * re-rendered by them, so without this it keeps the entry the previous page marked - the
+     * dashboard stays highlighted after moving into a space, for example. The counterpart is
+     * `humhub.ui.navigation.setActive()`, which moves the highlight or, for a page with no
+     * active entry, clears it.
+     *
+     * @since 1.19
      */
-    public function getActive()
+    public static function registerActiveState(): void
     {
-        $activeEntry = $this->getActiveEntry();
-        if ($activeEntry && $activeEntry instanceof MenuLink) {
-            return $activeEntry->toArray();
+        $menu = new static();
+
+        if (empty($menu->id)) {
+            return;
         }
 
-        return null;
-    }
+        $activeEntry = $menu->getActiveEntry();
+        $active = $activeEntry instanceof MenuLink
+            ? ['id' => $activeEntry->getId(), 'url' => $activeEntry->getUrl()]
+            : null;
 
-    /**
-     * @param $url string the URL or route
-     * @deprecated since 1.4
-     */
-    public function deleteItemByUrl($url)
-    {
-        $entry = $this->getEntryByUrl($url);
-        if ($entry) {
-            $this->removeEntry($entry);
-        }
-    }
-
-    /**
-     * @deprecated since 1.4
-     */
-    public static function setViewState()
-    {
-        $instance = new static();
-        if (!empty($instance->id)) {
-            $active = $instance->getActive();
-            $instance->view->registerJs('humhub.modules.ui.navigation.setActive("' . $instance->id . '", ' . json_encode($active) . ');', View::POS_END, 'active-' . $instance->id);
-        }
+        $menu->getView()->registerJs(
+            'humhub.modules.ui.navigation.setActive('
+            . Json::htmlEncode($menu->id) . ', ' . Json::htmlEncode($active) . ');',
+            View::POS_END,
+            'active-' . $menu->id,
+        );
     }
 
 }

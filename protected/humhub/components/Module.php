@@ -8,6 +8,7 @@
 
 namespace humhub\components;
 
+use humhub\components\assets\AssetManager;
 use humhub\helpers\ThemeHelper;
 use humhub\models\Setting;
 use humhub\modules\activity\components\BaseActivity;
@@ -19,11 +20,13 @@ use humhub\modules\marketplace\models\Module as OnlineModelModule;
 use humhub\modules\notification\components\BaseNotification;
 use humhub\modules\queue\helpers\QueueHelper;
 use humhub\services\MigrationService;
+use humhub\services\ModuleService;
 use Throwable;
 use Yii;
 use yii\base\InvalidConfigException;
 use yii\db\StaleObjectException;
 use yii\helpers\Json;
+use yii\helpers\Url;
 use yii\web\AssetBundle;
 
 /**
@@ -110,7 +113,7 @@ class Module extends \yii\base\Module
         $url = $this->getPublishedUrl('/module_image.png');
 
         if ($url == null) {
-            $url = Yii::getAlias("@web-static/img/default_module.jpg");
+            $url = Yii::$app->assetManager->getPublishedUrl('@humhub/resources') . '/img/default_module.jpg';
         }
 
         return $url;
@@ -127,38 +130,43 @@ class Module extends \yii\base\Module
     }
 
     /**
-     * Returns the url of an asset file and publishes all module assets if
-     * the file is not published yet.
+     * Returns the url of a published module asset file (publishing the module's
+     * assets on demand), or `null` if the module does not ship the given file.
      *
-     * @param string $relativePath relative file path e.g. /module_image.jpg
-     * @return string
+     * Whether the module ships the file is checked against its own - always
+     * local - resources directory. Whether the assets are already published is
+     * handled by {@see \humhub\components\assets\AssetManager::publish()}, whose
+     * result is cached and invalidated on cache clear. This avoids probing the
+     * published location, which may live on a remote (e.g. S3) mount, on every
+     * call.
+     *
+     * @param string $relativePath relative file path e.g. /module_image.png
+     * @return string|null
      */
     public function getPublishedUrl($relativePath)
     {
-        $path = $this->getAssetPath();
-
-        // If the file has not been published yet we publish the module assets
         if (!$this->isPublished($relativePath)) {
-            $this->publishAssets();
+            return null;
         }
 
-        // If its still not published the file does not exist
-        if ($this->isPublished($relativePath)) {
-            return Yii::$app->assetManager->getPublishedUrl($path) . $relativePath;
-        }
+        $published = Yii::$app->assetManager->publish($this->getAssetPath());
+
+        return isset($published[1]) ? $published[1] . $relativePath : null;
     }
 
     /**
-     * Checks if a specific asset file has already been published
-     * @param string $relativePath
-     * @return string
+     * Checks whether the module ships the given asset file in its (local)
+     * resources directory. The published copy is created on demand by
+     * {@see getPublishedUrl()}, so this deliberately checks the source and not
+     * the published location, which may live on a remote (e.g. S3) mount.
+     *
+     * @param string $relativePath relative file path e.g. /module_image.png
+     * @return bool
      */
     public function isPublished($relativePath)
     {
-        $path = $this->getAssetPath();
-        $publishedPath = Yii::$app->assetManager->getPublishedPath($path);
-
-        return $publishedPath !== false && is_file($publishedPath . $relativePath);
+        return $this->hasAssets()
+            && is_file(Yii::getAlias($this->getAssetPath()) . $relativePath);
     }
 
     /**
@@ -166,19 +174,18 @@ class Module extends \yii\base\Module
      *
      * @return string Image Url
      */
-    public function getAssetsUrl()
+    public function getAssetsUrl(): string
     {
-        if (($published = $this->publishAssets()) != null) {
-            return $published[1];
-        }
+        $published = $this->publishAssets();
+        return $published && isset($published[1]) ? Url::to($published[1]) : '';
     }
 
     /**
      * Publishes the basePath/resourcesPath (assets) module directory if existing.
      * @param bool $all whether or not to publish sub assets within the `assets` directory
-     * @return array
+     * @return array|null
      */
-    public function publishAssets($all = false)
+    public function publishAssets(bool $all = false): ?array
     {
         /** @var $assetBundle AssetBundle */
         /** @var $manager AssetManager */
@@ -186,14 +193,14 @@ class Module extends \yii\base\Module
         if ($all) {
             foreach ($this->getAssetClasses() as $assetClass) {
                 $assetBundle = new $assetClass();
-                $manager = Yii::$app->getAssetManager();
-                $manager->forcePublish($assetBundle);
+                $assetBundle->publishOptions['forceCopy'] = true;
+                $assetBundle->publish(Yii::$app->assetManager);
             }
         }
 
-        if ($this->hasAssets()) {
-            return Yii::$app->assetManager->publish($this->getAssetPath(), ['forceCopy' => true]);
-        }
+        return $this->hasAssets()
+            ? Yii::$app->assetManager->publish($this->getAssetPath(), ['forceCopy' => true])
+            : null;
     }
 
     /**
@@ -238,28 +245,34 @@ class Module extends \yii\base\Module
     }
 
     /**
-     * @see          static::getIsEnabled()
-     * @deprecated since 1.16; use static::getIsEnabled() instead.
-     * @noinspection PhpUnused
-     */
-    public function getIsActivated(): bool
-    {
-        return $this->getIsEnabled();
-    }
-
-    /**
-     * Enables this module
+     * Enables this module.
      *
-     * @return bool|null Result of migration or null if beforeEnable() returned false (since v1.16)
+     * Override this method to run custom logic when the module is enabled. Call
+     * `parent::enable()` **before** your custom code so the module is already
+     * registered and active when your code runs:
+     *
+     * ```php
+     * public function enable()
+     * {
+     *     parent::enable();
+     *     // custom enable logic here
+     * }
+     * ```
+     *
+     * The base implementation delegates the registration step to {@see ModuleService::enable()}
+     * and then runs pending database migrations via {@see MigrationService::migrateUp()}.
+     * If migrations fail, the registration is rolled back automatically.
+     *
+     * @return bool|null migration result, or false if migrations failed
      * @throws InvalidConfigException
      */
     public function enable()
     {
-        Yii::$app->moduleManager->enable($this);
+        $this->getModuleService()->enable();
         $result = $this->getMigrationService()->migrateUp();
 
         if ($result === false) {
-            Yii::$app->moduleManager->disable($this);
+            $this->getModuleService()->disable();
             Yii::error('Could not enable module. Database Migration failed! See previous error for result.', $this->id);
             return false;
         }
@@ -297,23 +310,22 @@ class Module extends \yii\base\Module
             $result = false;
         }
 
-        Yii::$app->moduleManager->disable($this);
+        $this->getModuleService()->disable();
 
         return $result;
-    }
-
-    /**
-     * Execute all not applied module migrations
-     * @deprecated since v1.16; use static::getMigrationService()->migrateUp()
-     */
-    public function migrate()
-    {
-        return $this->getMigrationService()->migrateUp();
     }
 
     public function getMigrationService(): MigrationService
     {
         return new MigrationService($this);
+    }
+
+    /**
+     * @since 1.19
+     */
+    public function getModuleService(): ModuleService
+    {
+        return new ModuleService($this);
     }
 
     /**
@@ -355,29 +367,6 @@ class Module extends \yii\base\Module
                 }
             }
         }
-    }
-
-    /**
-     * Called right before the module is updated.
-     *
-     * The update will cancel if this function does return false;
-     *
-     * @return bool
-     * @deprecated since v1.15.3
-     *
-     */
-    public function beforeUpdate()
-    {
-        return true;
-    }
-
-    /**
-     * Called right after the module update.
-     *
-     * @deprecated since v1.15.3
-     */
-    public function afterUpdate()
-    {
     }
 
     /**

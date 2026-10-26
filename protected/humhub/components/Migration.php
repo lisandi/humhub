@@ -8,7 +8,7 @@
 
 namespace humhub\components;
 
-use humhub\modules\like\activities\Liked;
+use humhub\modules\like\activities\LikeActivity;
 use humhub\modules\like\models\Like;
 use Throwable;
 use Traversable;
@@ -139,16 +139,13 @@ class Migration extends \yii\db\Migration
      */
     protected function safeCreateTable(string $table, $columns, ?string $options = null)
     {
-        if (!$this->db->getTableSchema($table, true)) {
+        try {
             $this->createTable($table, $columns, $options);
             return true;
+        } catch (\Exception $e) {
+            $this->safeSkipCommand("Tried to create a table '$table'", $e);
+            return false;
         }
-
-        if (!$this->compact) {
-            echo "    > skipped create table $table, table does already exist ...\n";
-        }
-        $this->logWarning("Tried to create an already existing existing table '$table'");
-        return false;
     }
 
     /**
@@ -161,16 +158,13 @@ class Migration extends \yii\db\Migration
      */
     protected function safeDropTable(string $table)
     {
-        if ($this->db->getTableSchema($table, true)) {
+        try {
             $this->dropTable($table);
             return true;
+        } catch (\Exception $e) {
+            $this->safeSkipCommand("Tried to drop a table '$table'", $e);
+            return false;
         }
-
-        if (!$this->compact) {
-            echo "    > skipped drop table $table, table does not exist ...\n";
-        }
-        $this->logWarning("Tried to drop a non existing table '$table'");
-        return false;
     }
 
     /**
@@ -194,16 +188,13 @@ class Migration extends \yii\db\Migration
      */
     protected function safeDropColumn(string $table, string $column)
     {
-        if ($this->columnExists($column, $table)) {
+        try {
             $this->dropColumn($table, $column);
             return true;
+        } catch (\Exception $e) {
+            $this->safeSkipCommand("Tried to drop a column '$column' from table '$table'", $e);
+            return false;
         }
-
-        if (!$this->compact) {
-            echo "    > skipped drop column $column from table $table, column does not exist ...\n";
-        }
-        $this->logWarning("Tried to drop a non existing column '$column' from table '$table'");
-        return false;
     }
 
     /**
@@ -217,16 +208,13 @@ class Migration extends \yii\db\Migration
      */
     protected function safeAddColumn(string $table, string $column, $type)
     {
-        if (!$this->columnExists($column, $table)) {
+        try {
             $this->addColumn($table, $column, $type);
             return true;
+        } catch (\Exception $e) {
+            $this->safeSkipCommand("Tried to add a column '$column' on table '$table'", $e);
+            return false;
         }
-
-        if (!$this->compact) {
-            echo "    > skipped add column $column from table $table, column does already exist ...\n";
-        }
-        $this->logWarning("Tried to add an already existing column '$column' on table '$table'");
-        return false;
     }
 
     /**
@@ -243,24 +231,13 @@ class Migration extends \yii\db\Migration
      */
     protected function safeRenameColumn(string $table, string $name, string $newName): bool
     {
-        if (!$this->columnExists($name, $table)) {
-            if (!$this->compact) {
-                echo "    > skipped rename column from $name to $newName in table $table, column $name doesn't exist ...\n";
-            }
-            $this->logWarning("Tried to rename a not existing column '$name' to '$newName' in table '$table'");
+        try {
+            $this->renameColumn($table, $name, $newName);
+            return true;
+        } catch (\Exception $e) {
+            $this->safeSkipCommand("Tried to rename a column '$name' to '$newName' in table '$table'", $e);
             return false;
         }
-
-        if ($this->columnExists($newName, $table)) {
-            if (!$this->compact) {
-                echo "    > skipped rename column from $name to $newName in table $table, column $newName already exists ...\n";
-            }
-            $this->logWarning("Tried to rename to already existing column '$newName' from '$name' in table '$table'");
-            return false;
-        }
-
-        $this->renameColumn($table, $name, $newName);
-        return true;
     }
 
     /**
@@ -277,16 +254,13 @@ class Migration extends \yii\db\Migration
      */
     protected function safeAlterColumn(string $table, string $column, string $type): bool
     {
-        if (!$this->columnExists($column, $table)) {
-            if (!$this->compact) {
-                echo "    > skipped alter column $column to type $type in table $table, column $column doesn't exist ...\n";
-            }
-            $this->logWarning("Tried to alter a not existing column '$column' to type '$type' in table '$table'");
+        try {
+            $this->alterColumn($table, $column, $type);
+            return true;
+        } catch (\Exception $e) {
+            $this->safeSkipCommand("Tried to alter a column '$column' to type '$type' in table '$table'", $e);
             return false;
         }
-
-        $this->alterColumn($table, $column, $type);
-        return true;
     }
 
     /**
@@ -307,29 +281,6 @@ class Migration extends \yii\db\Migration
     }
 
     /**
-     * Check if the foreign index already exists in the table
-     *
-     * @param string $index
-     * @param string $table
-     *
-     * @return bool
-     * @throws Exception
-     * @since 1.9.1
-     */
-    protected function foreignIndexExists(string $index, string $table): bool
-    {
-        // Resolve `{{%table_name}}` to `table_name`
-        $rawTableName = $this->db->getSchema()->getRawTableName($table);
-
-        return (bool) $this->db->createCommand('SELECT * FROM information_schema.key_column_usage
-            WHERE REFERENCED_TABLE_NAME IS NOT NULL
-              AND TABLE_NAME = ' . $this->db->quoteValue($rawTableName) . '
-              AND TABLE_SCHEMA = ' . $this->db->quoteValue($this->getDsnAttribute('dbname')) . '
-              AND CONSTRAINT_NAME = ' . $this->db->quoteValue($index))
-            ->queryOne();
-    }
-
-    /**
      * Create an index if it doesn't exist yet
      *
      * @param string $index
@@ -345,16 +296,13 @@ class Migration extends \yii\db\Migration
      */
     protected function safeCreateIndex(string $index, string $table, $columns, bool $unique = false)
     {
-        if (!$this->indexExists($index, $table)) {
+        try {
             $this->createIndex($index, $table, $columns, $unique);
             return true;
+        } catch (\Exception $e) {
+            $this->safeSkipCommand("Tried to create an index '$index' on table '$table'", $e);
+            return false;
         }
-
-        if (!$this->compact) {
-            echo "    > skipped create index $index in the table $table, index already exists ...\n";
-        }
-        $this->logWarning("Tried to create an already existing index '$index' on table '$table'");
-        return false;
     }
 
     /**
@@ -364,7 +312,6 @@ class Migration extends \yii\db\Migration
      * @param string $table
      *
      * @return bool indicates if the index has been dropped
-     * @throws Exception
      * @since 1.9.1
      * @see static::dropIndex()
      * @noinspection PhpUnused
@@ -372,16 +319,13 @@ class Migration extends \yii\db\Migration
      */
     protected function safeDropIndex(string $index, string $table)
     {
-        if ($this->indexExists($index, $table)) {
+        try {
             $this->dropIndex($index, $table);
             return true;
+        } catch (\Exception $e) {
+            $this->safeSkipCommand("Tried to drop an index '$index' from table '$table'", $e);
+            return false;
         }
-
-        if (!$this->compact) {
-            echo "    > skipped drop index $index from the table $table, index does not exist ...\n";
-        }
-        $this->logWarning("Tried to drop a non existing index '$index' from table '$table'");
-        return false;
     }
 
     /**
@@ -392,23 +336,19 @@ class Migration extends \yii\db\Migration
      * @param string|array $columns
      *
      * @return bool indicates if key has been added
-     * @throws Exception
      * @since 1.9.1
      * @see static::addPrimaryKey()
      * @noinspection PhpMissingReturnTypeInspection
      */
     protected function safeAddPrimaryKey(string $index, string $table, $columns)
     {
-        if (!$this->indexExists('PRIMARY', $table)) {
+        try {
             $this->addPrimaryKey($index, $table, $columns);
             return true;
+        } catch (\Exception $e) {
+            $this->safeSkipCommand("Tried to create a primary index '$index' on table '$table'", $e);
+            return false;
         }
-
-        if (!$this->compact) {
-            echo "    > skipped create primary index $index in the table $table, primary index already exists ...\n";
-        }
-        $this->logWarning("Tried to create an already existing primary index '$index' on table '$table'");
-        return false;
     }
 
     /**
@@ -418,7 +358,6 @@ class Migration extends \yii\db\Migration
      * @param string $table
      *
      * @return bool indicates if key has been added
-     * @throws Exception
      * @since 1.9.1
      * @see static::dropPrimaryKey()
      * @noinspection PhpUnused
@@ -426,16 +365,13 @@ class Migration extends \yii\db\Migration
      */
     protected function safeDropPrimaryKey(string $index, string $table)
     {
-        if ($this->indexExists('PRIMARY', $table)) {
+        try {
             $this->dropPrimaryKey($index, $table);
             return true;
+        } catch (\Exception $e) {
+            $this->safeSkipCommand("Tried to drop a primary index '$index' from table '$table'", $e);
+            return false;
         }
-
-        if (!$this->compact) {
-            echo "    > skipped drop primary index $index from the table $table, primary index does not exist ...\n";
-        }
-        $this->logWarning("Tried to drop a non existing primary index '$index' from table '$table'");
-        return false;
     }
 
     /**
@@ -450,23 +386,19 @@ class Migration extends \yii\db\Migration
      * @param string|null $update
      *
      * @return bool indicates if key has been added
-     * @throws Exception
      * @since 1.9.1
      * @see static::addForeignKey()
      * @noinspection PhpMissingReturnTypeInspection
      */
     protected function safeAddForeignKey(string $index, string $table, $columns, string $refTable, $refColumns, ?string $delete = null, ?string $update = null)
     {
-        if (!$this->foreignIndexExists($index, $table)) {
+        try {
             $this->addForeignKey($index, $table, $columns, $refTable, $refColumns, $delete, $update);
             return true;
+        } catch (\Exception $e) {
+            $this->safeSkipCommand("Tried to create a foreign index '$index' on table '$table'", $e);
+            return false;
         }
-
-        if (!$this->compact) {
-            echo "    > skipped create foreign index $index in the table $table, foreign index already exists ...\n";
-        }
-        $this->logWarning("Tried to create an already existing foreign index '$index' on table '$table'");
-        return false;
     }
 
     /**
@@ -476,23 +408,19 @@ class Migration extends \yii\db\Migration
      * @param string $table
      *
      * @return bool indicates if key has been dropped
-     * @throws Exception
      * @since 1.9.1
      * @noinspection PhpUnused
      * @noinspection PhpMissingReturnTypeInspection
      */
     protected function safeDropForeignKey(string $index, string $table)
     {
-        if ($this->foreignIndexExists($index, $table)) {
+        try {
             $this->dropForeignKey($index, $table);
             return true;
+        } catch (\Exception $e) {
+            $this->safeSkipCommand("Tried to drop a foreign index '$index' from table '$table'", $e);
+            return false;
         }
-
-        if (!$this->compact) {
-            echo "    > skipped drop foreign index $index from the table $table, foreign index does not exist ...\n";
-        }
-        $this->logWarning("Tried to drop a non existing foreign index '$index' from table '$table'");
-        return false;
     }
 
     /**
@@ -599,12 +527,22 @@ class Migration extends \yii\db\Migration
      */
     protected function renameClass(string $oldClass, string $newClass): void
     {
-        $this->updateSilent('activity', ['object_model' => $newClass], ['object_model' => $oldClass]);
+        if ($this->db->getTableSchema('activity', true)->getColumn('object_model') !== null) {
+            $this->updateSilent('activity', ['object_model' => $newClass], ['object_model' => $oldClass]);
+        }
+
         $this->updateSilent('activity', ['class' => $newClass], ['class' => $oldClass]);
-        $this->updateSilent('comment', ['object_model' => $newClass], ['object_model' => $oldClass]);
+
+        if ($this->db->getTableSchema('comment', true)->getColumn('object_model') !== null) {
+            $this->updateSilent('comment', ['object_model' => $newClass], ['object_model' => $oldClass]);
+        }
+
+        if ($this->db->getTableSchema('like', true)->getColumn('object_model') !== null) {
+            $this->updateSilent('like', ['object_model' => $newClass], ['object_model' => $oldClass]);
+        }
+
         $this->updateSilent('content', ['object_model' => $newClass], ['object_model' => $oldClass]);
         $this->updateSilent('file', ['object_model' => $newClass], ['object_model' => $oldClass]);
-        $this->updateSilent('like', ['object_model' => $newClass], ['object_model' => $oldClass]);
         $this->updateSilent('notification', ['source_class' => $newClass], ['source_class' => $oldClass]);
         $this->updateSilent('notification', ['class' => $newClass], ['class' => $oldClass]);
         $this->updateSilent('user_mentioning', ['object_model' => $newClass], ['object_model' => $oldClass]);
@@ -612,23 +550,25 @@ class Migration extends \yii\db\Migration
 
         //$this->updateSilent('wall', ['object_model' => $newClass], ['object_model' => $oldClass]);
 
-        /**
-         * Looking up "NewLike" activities with this className
-         * Since 0.20 the className changed to Like (is not longer the target object, e.g. post)
-         *
-         * Use a raw query for better performance.
-         */
-        $updateSql = "
-            UPDATE activity
-            LEFT JOIN `like` ON like.object_model=activity.object_model AND like.object_id=activity.object_id
-            SET activity.object_model=:likeModelClass, activity.object_id=like.id
-            WHERE activity.class=:likedActivityClass AND like.id IS NOT NULL and activity.object_model != :likeModelClass
-        ";
+        if ($this->db->getTableSchema('like')->getColumn('object_model') !== null) {
+            /**
+             * Looking up "NewLike" activities with this className
+             * Since 0.20 the className changed to Like (is not longer the target object, e.g. post)
+             *
+             * Use a raw query for better performance.
+             */
+            $updateSql = "
+                UPDATE activity
+                LEFT JOIN `like` ON like.object_model=activity.object_model AND like.object_id=activity.object_id
+                SET activity.object_model=:likeModelClass, activity.object_id=like.id
+                WHERE activity.class=:likedActivityClass AND like.id IS NOT NULL and activity.object_model != :likeModelClass
+            ";
 
-        Yii::$app->db->createCommand($updateSql, [
-            ':likeModelClass' => Like::class,
-            ':likedActivityClass' => Liked::class,
-        ])->execute();
+            Yii::$app->db->createCommand($updateSql, [
+                ':likeModelClass' => Like::class,
+                ':likedActivityClass' => LikeActivity::class,
+            ])->execute();
+        }
     }
 
     /**
@@ -660,6 +600,142 @@ class Migration extends \yii\db\Migration
     public function insertSilent(string $table, $columns): void
     {
         $this->db->createCommand()->insert($table, $columns)->execute();
+    }
+
+    /**
+     * @inheritdoc
+     *
+     * On MySQL/MariaDB, new tables are created with the same collation as the existing `user` table, instead of
+     * the (possibly different) default collation of the database. This avoids "Illegal mix of collations" errors
+     * when string columns of different tables are later compared or joined.
+     *
+     * On a fresh installation, where the `user` table does not exist yet, the database's own default collation
+     * is used, same as before.
+     *
+     * @since 1.19
+     */
+    public function createTable($table, $columns, $options = null)
+    {
+        if ($options === null && $this->db->getDriverName() === 'mysql') {
+            $referenceCollation = $this->getReferenceCollation();
+            if ($referenceCollation !== null) {
+                $options = 'COLLATE ' . $referenceCollation;
+            }
+        }
+
+        parent::createTable($table, $columns, $options);
+    }
+
+    /**
+     * Returns the collation of the `user` table (MySQL/MariaDB only), used as the reference collation by
+     * {@see static::createTable()} and {@see static::safeConvertTableCollation()}. Returns `null` on a fresh
+     * installation, where the `user` table does not exist yet.
+     *
+     * @return string|null
+     * @since 1.19
+     */
+    protected function getReferenceCollation(): ?string
+    {
+        return Yii::$app->runtimeCache->getOrSet(__METHOD__, function () {
+            return $this->getTableCollation('user');
+        });
+    }
+
+    /**
+     * Returns the collation of a table (MySQL/MariaDB only), or `null` if the table does not exist.
+     *
+     * @param string $table Table name without prefix braces
+     * @return string|null
+     * @since 1.19
+     */
+    protected function getTableCollation(string $table): ?string
+    {
+        $rawName = $this->db->schema->getRawTableName($table);
+        $collation = $this->db->createCommand(
+            'SELECT TABLE_COLLATION FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = :name',
+            [':name' => $rawName],
+        )->queryScalar();
+
+        return $collation === false ? null : $collation;
+    }
+
+    /**
+     * Returns the collation and character set of a table (MySQL/MariaDB only), or `null` if the table does not
+     * exist.
+     *
+     * Unlike {@see static::getTableCollation()}, this also resolves the character set implied by the
+     * collation. This is needed for `ALTER TABLE ... CONVERT TO`, which (unlike `CREATE TABLE`) requires an
+     * explicit `CHARACTER SET` clause and does not infer it from `COLLATE` alone. Assuming `utf8mb4` here would
+     * be wrong for a reference table using a different charset family, e.g. a legacy `utf8mb3`/`utf8` collation.
+     *
+     * MariaDB 10.10+ lists its UCA 14.0 collations (e.g. `utf8mb4_uca1400_ai_ci`, the default since MariaDB 11.5)
+     * in `information_schema.COLLATIONS` only under a charset-independent name (`uca1400_ai_ci`) with a `NULL`
+     * character set. In that case, the character set is taken from the collation name, which always starts with
+     * the name of its character set.
+     *
+     * @param string $table Table name without prefix braces
+     * @return array{charset: string, collation: string}|null
+     * @since 1.19
+     */
+    protected function getTableCharsetAndCollation(string $table): ?array
+    {
+        $rawName = $this->db->schema->getRawTableName($table);
+        $result = $this->db->createCommand(
+            'SELECT c.CHARACTER_SET_NAME AS charset, t.TABLE_COLLATION AS collation'
+            . ' FROM information_schema.TABLES t'
+            . ' LEFT JOIN information_schema.COLLATIONS c ON c.COLLATION_NAME = t.TABLE_COLLATION'
+            . ' WHERE t.TABLE_SCHEMA = DATABASE() AND t.TABLE_NAME = :name',
+            [':name' => $rawName],
+        )->queryOne();
+
+        if ($result === false || empty($result['collation'])) {
+            return null;
+        }
+
+        $result['charset'] ??= strstr($result['collation'], '_', true) ?: null;
+
+        return $result['charset'] === null ? null : $result;
+    }
+
+    /**
+     * Converts an existing table to the collation of a reference table (MySQL/MariaDB only), so subsequent
+     * joins between the two tables don't fail with "Illegal mix of collations".
+     *
+     * Does nothing if either table cannot be found, or if $table already has the reference collation.
+     *
+     * Note: if this is called repeatedly for the same $table against different $referenceTable tables whose
+     * collations differ from each other (e.g. `record_map` is matched against `like`, and separately against
+     * `activity`), $table ends up matching only the last reference table it was converted to. This is
+     * acceptable here because `like`, `activity` and `record_map` are never joined directly on string columns
+     * outside of these migrations themselves.
+     *
+     * @param string $table Table to convert, without prefix braces
+     * @param string $referenceTable Table whose collation to match, without prefix braces
+     * @return bool Whether the table has been converted
+     * @since 1.19
+     */
+    protected function safeConvertTableCollation(string $table, string $referenceTable): bool
+    {
+        if ($this->db->getDriverName() !== 'mysql') {
+            return false;
+        }
+
+        $reference = $this->getTableCharsetAndCollation($referenceTable);
+        if ($reference === null) {
+            return false;
+        }
+
+        $currentCollation = $this->getTableCollation($table);
+        if ($currentCollation === null || $currentCollation === $reference['collation']) {
+            return false;
+        }
+
+        $this->execute(
+            'ALTER TABLE ' . $this->db->quoteTableName($table)
+            . ' CONVERT TO CHARACTER SET ' . $reference['charset'] . ' COLLATE ' . $reference['collation'],
+        );
+
+        return true;
     }
 
     /**
@@ -761,7 +837,7 @@ class Migration extends \yii\db\Migration
         }
 
         // enclose keys in curly brackets
-        $params = array_combine(array_map(static fn($key) => "{{$key}}", $params), $params);
+        $params = array_combine(array_map(static fn($key) => "{{$key}}", array_keys($params)), $params);
 
         // replace "{key}" with "value"
         return strtr($message, $params);
@@ -806,5 +882,16 @@ class Migration extends \yii\db\Migration
     public function getLastException(): ?Throwable
     {
         return $this->lastException;
+    }
+
+    protected function safeSkipCommand(string $log, ?\Exception $exception = null): void
+    {
+        if (!$this->compact) {
+            echo "\n" . '      - Skipped'
+                . ($exception instanceof Exception && isset($exception->errorInfo[2]) ? ': ' . $exception->errorInfo[2] : '')
+                . "\n";
+        }
+
+        $this->logWarning($log . ($exception instanceof \Exception ? '. Error: ' . $exception->getMessage() : ''));
     }
 }

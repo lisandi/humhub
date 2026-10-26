@@ -48,7 +48,7 @@ class CommentControls extends Menu
             'url' => '#',
             'htmlOptions' => [
                 'data-action-click' => 'content.permalink',
-                'data-content-permalink' => $this->comment->url,
+                'data-content-permalink' => $this->comment->getUrl(true),
                 'data-content-permalink-title' => Yii::t('CommentModule.base', '<strong>Permalink</strong> to this comment'),
 
             ],
@@ -62,18 +62,10 @@ class CommentControls extends Menu
         if ($this->comment->canDelete()) {
             $isAdmin = $this->comment->created_by !== Yii::$app->user->id;
 
-            $deleteUrl = Url::to(['/comment/comment/delete',
-                'objectModel' => $this->comment->object_model,
-                'objectId' => $this->comment->object_id,
-                'id' => $this->comment->id,
-            ]);
+            $deleteUrl = Url::to(['/comment/comment/delete', 'id' => $this->comment->id]);
 
             if ($isAdmin) {
-                $adminDeleteModalUrl = Url::to(['/comment/comment/get-admin-delete-modal',
-                    'objectModel' => $this->comment->object_model,
-                    'objectId' => $this->comment->object_id,
-                    'id' => $this->comment->id,
-                ]);
+                $adminDeleteModalUrl = Url::to(['/comment/comment/get-admin-delete-modal', 'id' => $this->comment->id]);
             }
 
             $htmlOptions = [

@@ -1,5 +1,5 @@
 <?php
-return array (
+return [
   '<strong>E-Mail</strong> Summaries' => 'Résumés par <strong>e-mail</strong>',
   '<strong>Latest</strong> activities' => '<strong>Activité</strong> récente',
   'Activities' => 'Activités',
@@ -27,13 +27,8 @@ return array (
   'Your weekly summary' => 'Votre résumé hebdomadaire',
   'see online' => 'voir en ligne',
   'via' => 'depuis',
-  '{displayName} created the new space {spaceName}' => '{displayName} a créé un nouvel espace {spaceName}',
-  '{displayName} created this space.' => 'Espace créé par {displayName}',
-  '{displayName} joined the space {spaceName}' => '{displayName} a rejoint l\'espace {spaceName}',
-  '{displayName} joined this space.' => '{displayName} a rejoint cet espace.',
-  '{displayName} left the space {spaceName}' => '{displayName} a quitté l\'espace {spaceName}',
-  '{displayName} left this space.' => '{displayName} a quitté cet espace.',
-  '{spaceName} has been archived' => '{spaceName} a été archivé',
-  '{spaceName} has been unarchived' => '{spaceName} a été désarchivé',
-  '{user1} now follows {user2}.' => '{user1} suit maintenant {user2}.',
-);
+  '{displayName1} and {displayName2}' => '{displayName1} et {displayName2}',
+  '{displayName1}, {displayName2} and {count} more' => '{displayName1}, {displayName2} et {count} autres',
+  '{displayNames} now follow {followedDisplayName}.' => '{displayNames} suivent désormais {followedDisplayName}.',
+  '{displayName} now follows {followedDisplayName}.' => '{displayName} suit désormais {followedDisplayName}.',
+];

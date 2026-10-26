@@ -11,6 +11,7 @@ use humhub\helpers\ThemeHelper;
 use humhub\modules\space\components\SpaceDirectoryQuery;
 use humhub\modules\space\widgets\SpaceDirectoryCard;
 use humhub\modules\space\widgets\SpaceDirectoryFilters;
+use humhub\modules\space\widgets\SpaceDirectoryHeadingButtons;
 use yii\web\View;
 
 /* @var $this View */
@@ -22,6 +23,7 @@ CardsAsset::register($this);
 
     <div class="panel-heading">
         <?= Yii::t('SpaceModule.base', '<strong>Spaces</strong>'); ?>
+        <?= SpaceDirectoryHeadingButtons::widget() ?>
     </div>
 
     <div class="panel-body">
@@ -31,13 +33,15 @@ CardsAsset::register($this);
 </div>
 
 <div class="container<?= ThemeHelper::isFluid() ? '-fluid' : '' ?> gx-0 overflow-x-hidden">
-    <div class="row cards">
+    <div class="row cards" aria-live="polite" aria-atomic="false">
         <?php if (!$spaces->exists()): ?>
             <div class="col-lg-12">
                 <div class="panel panel-default">
                     <div class="panel-body">
-                        <strong><?= Yii::t('SpaceModule.base', 'No results found!'); ?></strong><br/>
-                        <?= Yii::t('SpaceModule.base', 'Try other keywords or remove filters.'); ?>
+                        <p role="status" aria-live="polite" class="m-0">
+                            <strong><?= Yii::t('SpaceModule.base', 'No results found!') ?></strong><br>
+                            <?= Yii::t('SpaceModule.base', 'Try other keywords or remove filters.') ?>
+                        </p>
                     </div>
                 </div>
             </div>
@@ -52,6 +56,9 @@ CardsAsset::register($this);
 <?php if (!$spaces->isLastPage()) : ?>
     <?= Html::tag('div', '', [
         'class' => 'cards-end',
+        'role' => 'status',
+        'aria-label' => Yii::t('SpaceModule.base', 'Loading more spaces'),
+        'aria-live' => 'polite',
         'data-current-page' => $spaces->pagination->getPage() + 1,
         'data-total-pages' => $spaces->pagination->getPageCount(),
     ]) ?>

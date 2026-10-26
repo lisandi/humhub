@@ -57,17 +57,18 @@ Handler methods are always in `Events.php`. This is a fixed pattern across all m
 
 **This is the primary breaking point for core changes.** Renaming, moving, or removing a core class referenced in any module's `config.php` silently breaks that module at runtime.
 
-## MIGRATE-DEV.md
+## Migration guide
 
-`MIGRATE-DEV.md` is the authoritative record of all breaking API changes. Always read it first when assessing module impact.
+`docs/develop/module-migrate-<version>.md` is the authoritative record of all breaking API changes. Always read the file of the relevant release line first when assessing module impact.
 
 Structure:
-- Organized by version, newest first
-- Sections: Replaced classes · Removed classes · Replaced methods · Deprecated · Refactored
-- Unreleased changes go under `Version X.Y (Unreleased)`
+- One file per release line: `module-migrate-1.20.md` (`next`), `module-migrate-1.19.md` (`develop`), `module-migrate-1.18.md`, etc.
+- `docs/develop/module-migrate.md` is **only an index** linking those files — never add entries there. Entries go into the file of the release line the PR targets, which keeps `develop` → `next` merges conflict-free.
+- Pre-1.15: `docs/develop/module-migrate-legacy.md`
+- Sections within each version: Replaced classes · Removed classes · Replaced methods · Deprecated · Refactored
 
 When doing impact analysis:
-1. Read `MIGRATE-DEV.md` to identify what changed in this PR/branch
+1. Read the migration file of the targeted release line to identify what changed in this PR/branch
 2. Search module `config.php` files for references to changed classes (event breakage)
 3. Search module PHP files for direct class/method usage
 4. Determine if `humhub.minVersion` in `module.json` needs updating
@@ -84,9 +85,13 @@ When doing impact analysis:
 
 External modules follow the same convention. A module's `develop` branch targets the upcoming core version. Verify by checking `humhub.minVersion` in the module's `module.json` on that branch.
 
+### `@since` annotations
+
+New features belong to the release line of the branch they are developed on, not to the previous version: `@since 1.20` on `next`, `@since 1.19` on `develop`. Use it in docblocks even when surrounding code still shows older `@since` values from past PRs. `protected/humhub/config/common.php` `.version` tells you the current cycle of the checked-out branch.
+
 ## Changelog
 
-Every PR must include a changelog entry. In this core repo the changelog is `CHANGELOG.md` at the repository **root** (external modules use `docs/CHANGELOG.md`). Add a bullet under the topmost `X.Y.Z (Unreleased)` section in the form `- <Tag> #<PR>: <description>`, where `<Tag>` is `Enh`, `Fix`, etc. — match the existing entries. Do not bump the version for unreleased changes; the version is only bumped when a release is cut.
+Every PR must include a changelog entry. In this core repo the changelog is `CHANGELOG.md` at the repository **root** (external modules use `docs/CHANGELOG.md`). Add a bullet under the `X.Y.Z (Unreleased)` section of the branch's own release line (open one at the top if the branch has no section of its own yet — `next` must not add entries to the `develop` section) in the form `- <Tag> #<PR>: <description>`, where `<Tag>` is `Enh`, `Fix`, etc. — match the existing entries. Do not bump the version for unreleased changes; the version is only bumped when a release is cut.
 
 ## Running Tests
 
@@ -159,7 +164,7 @@ php $GITHUB_WORKSPACE/protected/vendor/bin/codecept run --env github
 
 When a PR changes public core APIs:
 
-1. Read `MIGRATE-DEV.md` section for current version to understand what changed
+1. Read the `Unreleased` section of `docs/develop/module-migrate.md` to understand what changed
 2. Search `config.php` across all module repos for old class/event names
 3. Search PHP files for direct usage of changed classes or methods
 4. For each affected module: check if `develop` branch exists and what its `humhub.minVersion` is

@@ -8,7 +8,7 @@
 use humhub\components\View;
 use humhub\modules\comment\models\Comment;
 use humhub\modules\user\widgets\Image as UserImage;
-use humhub\widgets\bootstrap\Button;
+use humhub\widgets\bootstrap\Link;
 
 /* @var $this View */
 /* @var $comment Comment */
@@ -18,14 +18,12 @@ use humhub\widgets\bootstrap\Button;
 <div class="d-flex comment-blocked-user" id="comment_<?= $comment->id ?>"
      data-action-component="comment.Comment">
 
-    <hr class="comment-separator">
-
     <div class="flex-shrink-0 me-2">
-        <?= UserImage::widget(['user' => $comment->user, 'width' => 25, 'htmlOptions' => ['data-contentcontainer-id' => $comment->user->contentcontainer_id]]); ?>
+        <?= UserImage::widget(['user' => $comment->createdBy, 'width' => 25, 'htmlOptions' => ['data-contentcontainer-id' => $comment->createdBy->contentcontainer_id]]); ?>
     </div>
 
     <div class="flex-grow-1 overflow-hidden">
         <?= Yii::t('CommentModule.base', 'Comment of blocked user.') ?>
-        <?= Button::asLink(Yii::t('CommentModule.base', 'Show'))->action('showBlocked', $loadBlockedCommentUrl)->sm()->cssClass('text-primary') ?>
+        <?= Link::to(Yii::t('CommentModule.base', 'Show'))->action('showBlocked', $loadBlockedCommentUrl)->sm()->cssClass('text-primary') ?>
     </div>
 </div>

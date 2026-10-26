@@ -20,7 +20,7 @@ use humhub\widgets\modal\ModalButton;
     </p>
 
     <p>
-        <?= Yii::t('MarketplaceModule.base', 'If this Module is additionally marked as <strong>"Community"</strong> it is neither tested nor monitored by the HumHub project team.') ?>
+        <?= Yii::t('MarketplaceModule.base', 'If this Module is additionally marked as <strong>"Not curated"</strong>, it is not part of our curated selection and has not been reviewed by the HumHub team for quality, security or compatibility.') ?>
     </p>
 
 <?php Modal::endDialog() ?>

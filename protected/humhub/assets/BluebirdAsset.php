@@ -21,11 +21,6 @@ class BluebirdAsset extends AssetBundle
     /**
      * @inheritdoc
      */
-    public $defaultDepends = false;
-
-    /**
-     * @inheritdoc
-     */
     public $defer = false;
 
     /**
@@ -37,6 +32,15 @@ class BluebirdAsset extends AssetBundle
      * @inheritdoc
      */
     public $sourcePath = '@npm/bluebird';
+
+    /**
+     * @inheritdoc
+     */
+    public $publishOptions = [
+        'only' => [
+            'js/browser/bluebird.min.js',
+        ],
+    ];
 
     /**
      * @inheritdoc

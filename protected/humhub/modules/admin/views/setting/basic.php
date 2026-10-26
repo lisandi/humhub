@@ -13,7 +13,7 @@ use humhub\widgets\form\ActiveForm;
 
 <div class="panel-body">
     <?= Html::beginForm(['clear-cache']) ?>
-    <?= Button::primary(Yii::t('AdminModule.settings', 'Flush Caches'))->submit()->options(['class' => 'pull-right']) ?>
+    <?= Button::primary(Yii::t('AdminModule.settings', 'Flush Caches'))->submit()->right() ?>
     <?= Html::endForm() ?>
 
     <h4><?= Yii::t('AdminModule.settings', 'General Settings') ?></h4>
@@ -37,6 +37,7 @@ use humhub\widgets\form\ActiveForm;
     <?= $form->beginCollapsibleFields(Yii::t('AdminModule.settings', 'Dashboard')) ?>
     <?= $form->field($model, 'tour')->checkbox() ?>
     <?= $form->field($model, 'dashboardShowProfilePostForm')->checkbox() ?>
+    <?= $form->field($model, 'dashboardShowTopicSidebar')->checkbox() ?>
     <?= $form->endCollapsibleFields() ?>
 
     <?= $form->beginCollapsibleFields(Yii::t('AdminModule.settings', 'Friendship')) ?>

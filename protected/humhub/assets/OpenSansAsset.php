@@ -26,8 +26,19 @@ class OpenSansAsset extends AssetBundle
 
     /**
      * @inheritdoc
+     *
+     * Only the latin/latin-ext subsets registered below are published;
+     * `files/open-sans-latin-*` covers both subsets' font files.
      */
-    public $defaultDepends = false;
+    public $publishOptions = [
+        'only' => [
+            'latin.css',
+            'latin-ext.css',
+            'latin-italic.css',
+            'latin-ext-italic.css',
+            'files/open-sans-latin-*',
+        ],
+    ];
 
     /**
      * @inheritdoc

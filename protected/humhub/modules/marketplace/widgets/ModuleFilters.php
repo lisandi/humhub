@@ -13,7 +13,7 @@ use humhub\modules\admin\libs\HumHubAPI;
 use humhub\modules\marketplace\Module;
 use humhub\modules\ui\icon\widgets\Icon;
 use humhub\modules\ui\widgets\DirectoryFilters;
-use humhub\widgets\bootstrap\Button;
+use humhub\widgets\bootstrap\Link;
 use Yii;
 use yii\helpers\Url;
 
@@ -45,7 +45,12 @@ class ModuleFilters extends DirectoryFilters
             'placeholder' => Yii::t('MarketplaceModule.base', 'Description, Name, Keywords...'),
             'type' => 'input',
             'wrapperClass' => 'flex-fill form-search-filter-keyword',
-            'afterInput' => Html::submitButton(Icon::get('search'), ['class' => 'form-button-search']),
+            'afterInput' => Html::submitButton(Icon::get('search'), [
+                'class' => 'form-button-search',
+                // Pressing Enter in the keyword field already submits the form, so this
+                // button doesn't need its own tab stop.
+                'tabindex' => '-1',
+            ]),
             'sortOrder' => 100,
         ]);
 
@@ -58,6 +63,16 @@ class ModuleFilters extends DirectoryFilters
                 'sortOrder' => 200,
             ]);
         }
+
+        $this->addFilter('includeCommunityModules', [
+            'type' => 'info',
+            'wrapperClass' => 'w-100 form-search-filter-include-community',
+            'info' => '<div class="d-flex gap-2">'
+                . '<div style="flex: 1 1 0; min-width: 200px;"></div>'
+                . '<div style="flex: 1 1 0; min-width: 200px;">' . $this->renderIncludeCommunityCheckbox($marketplaceModule) . '</div>'
+                . '</div>',
+            'sortOrder' => 300,
+        ]);
 
         $this->addFilter('tags', [
             'title' => Yii::t('MarketplaceModule.base', 'Tags'),
@@ -75,6 +90,49 @@ class ModuleFilters extends DirectoryFilters
             'wrapperClass' => 'w-100 form-search-filter-tags',
             'sortOrder' => 20000,
         ]);
+    }
+
+    private function renderIncludeCommunityCheckbox(Module $marketplaceModule): string
+    {
+        $checked = (bool) $marketplaceModule->settings->get('includeCommunityModules', false);
+
+        $warning = Yii::t('MarketplaceModule.base', 'These modules are provided by independent partners and developers and are <strong>not part of our curated selection</strong>.<br><br>HumHub does not review them for quality, security or compatibility. Support, updates and licensing are handled by the respective provider.<br><br>Make sure you trust the source of a module before installing it.');
+
+        $ackCheckbox = Html::tag(
+            'div',
+            Html::checkbox('communityRiskAccepted', false, [
+                'id' => 'community-risk-accepted',
+                'class' => 'form-check-input',
+            ])
+            . ' '
+            . Html::label(
+                Yii::t('MarketplaceModule.base', 'I understand and want to continue.'),
+                'community-risk-accepted',
+                ['class' => 'form-check-label'],
+            ),
+            ['class' => 'form-check mt-3'],
+        );
+
+        $confirmBody = $warning . $ackCheckbox;
+
+        $checkbox = Html::checkbox('includeCommunityModules', $checked, [
+            'id' => 'marketplace-include-community',
+            'class' => 'form-check-input',
+            'data-action-change' => 'marketplace.toggleCommunity',
+            'data-action-change-url' => Url::to(['/marketplace/browse/toggle-community']),
+            'data-confirm-header' => Yii::t('MarketplaceModule.base', 'Show non-curated modules?'),
+            'data-confirm-body' => $confirmBody,
+            'data-confirm-text' => Yii::t('MarketplaceModule.base', 'Yes, show non-curated modules'),
+            'data-cancel-text' => Yii::t('MarketplaceModule.base', 'Cancel'),
+        ]);
+
+        $label = Html::label(
+            Yii::t('MarketplaceModule.base', 'Show non-curated modules'),
+            'marketplace-include-community',
+            ['class' => 'form-check-label'],
+        );
+
+        return Html::tag('div', $checkbox . ' ' . $label, ['class' => 'form-check']);
     }
 
     public static function getDefaultValue(string $filter): string
@@ -110,7 +168,7 @@ class ModuleFilters extends DirectoryFilters
                 'class' => 'directory-filters-footer-warning',
                 'icon' => 'info-circle',
                 'info' => Yii::t('MarketplaceModule.base', 'A new update is available (HumHub %version%)!', ['%version%' => $latestVersion]),
-                'link' => Button::asLink(Yii::t('MarketplaceModule.base', 'Learn more'), $updateUrl)
+                'link' => Link::to(Yii::t('MarketplaceModule.base', 'Learn more'), $updateUrl)
                     ->cssClass('btn btn-primary'),
             ];
         } else {
@@ -118,7 +176,7 @@ class ModuleFilters extends DirectoryFilters
                 'class' => 'directory-filters-footer-info',
                 'icon' => 'check-circle',
                 'info' => Yii::t('MarketplaceModule.base', 'Your HumHub installation is up to date!'),
-                'link' => Button::asLink('https://www.humhub.com', 'https://www.humhub.com')
+                'link' => Link::to('https://www.humhub.com', 'https://www.humhub.com')
                     ->cssClass('btn btn-accent'),
             ];
         }

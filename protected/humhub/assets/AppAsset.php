@@ -8,7 +8,7 @@
 
 namespace humhub\assets;
 
-use humhub\components\assets\WebStaticAssetBundle;
+use humhub\components\assets\AssetBundle;
 use humhub\modules\content\assets\ContentAsset;
 use humhub\modules\content\assets\ContentHighlightAsset;
 use humhub\modules\file\assets\FileAsset;
@@ -28,17 +28,17 @@ use yii\widgets\ActiveFormAsset;
  * Note: All CSS/JS files will be compressed and bundled. If you need dynamic
  * css/js loading e.g. based on users locale: see AppDynamicAsset
  */
-class AppAsset extends WebStaticAssetBundle
+class AppAsset extends AssetBundle
 {
     /**
      * @inheritdoc
      */
-    public $defer = false;
+    public $sourcePath = '@humhub/resources';
 
     /**
      * @inheritdoc
      */
-    public $defaultDepends = false;
+    public $defer = false;
 
     /**
      * @inheritdoc
@@ -63,6 +63,7 @@ class AppAsset extends WebStaticAssetBundle
         OpenSansAsset::class,
         PjaxAsset::class,
         JqueryTimeAgoAsset::class,
+        IntlMessageFormatAsset::class,
 
         /**
          * Style only assets
@@ -93,14 +94,6 @@ class AppAsset extends WebStaticAssetBundle
      * @inheritdoc
      */
     public $depends = self::STATIC_DEPENDS;
-
-    /**
-     * @inheritdoc
-     */
-    public $js = [
-        'js/desktop-notify-min.js',
-        'js/desktop-notify-config.js',
-    ];
 
     /**
      * @inheritdoc

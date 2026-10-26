@@ -2,12 +2,6 @@
 
 return [
     '
-Module successfully disabled!
-' => 'Moduł wyłączony poprawnie!',
-    '
-Module successfully enabled!
-' => 'Moduł włączony poprawnie!',
-    '
 No active Professional Edition license found!
 ' => 'Nie znaleziono aktywnej licencji Edycji Profesjonalnej',
     '
@@ -21,12 +15,6 @@ The license was successfully activated!
 The license was successfully removed!
 
 ' => 'Licencja została prawidłowo usunięta!',
-    '--- Disable module: {moduleId} ---
-
-' => '--- Wyłącz moduł: {moduleId} ---',
-    '--- Enable module: {moduleId} ---
-
-' => '--- Włącz moduł: {moduleId} ---',
     '<strong>Activate</strong> your Professional Edition' => '<strong>Aktywuj</strong> swoją Wersję Profesjonalną',
     '<strong>General</strong> Settings' => '<strong>Ogólne</strong> ustawienia',
     'A new update is available (HumHub %version%)!' => 'Aktualizacja dostępna (HumHub %version%)!',
@@ -41,13 +29,11 @@ The license was successfully removed!
     'Available Updates' => 'Dostępne aktualizacje',
     'Buy' => 'Kup',
     'Buy (%price%)' => 'Kup (%price%)',
+    'Cancel' => 'Anuluj',
     'Categories' => 'Kategorie',
     'Changelog' => 'Dziennik zmian',
-    'Community' => 'Społeczność',
     'Configure' => 'Konfiguruj',
     'Could not connect to HumHub API!' => 'Nie można połączyć z HumHub API!',
-    'Could not connect to HumHub API!
-' => 'Nie można połączyć z API HumHub!',
     'Could not connect to license server!' => 'Nie można połączyć z serwerem licencyjnym!',
     'Could not extract module!' => 'Nie można wypakować modułu!',
     'Could not find requested module!' => 'Nie można znaleźć żądanego modułu.',
@@ -63,13 +49,10 @@ The license was successfully removed!
     'Find all the modules you can add to your network in our HumHub Marketplace. Discover numerous add-ons and features that customize the software and give you the possibility to configure your network to your needs.' => 'Odnajdź moduły w ramach rynku HumHub. Pozwoli to dostosować to własną instalację do indywidualnych potrzeb.',
     'General Settings' => 'Główne Ustawienia',
     'Great!' => 'Super!',
-    'If this Module is additionally marked as <strong>"Community"</strong> it is neither tested nor monitored by the HumHub project team.' => 'Jeżeli ten moduł jest oznaczony jako <strong>"Społeczność"</strong> oznacza to, że nie jest testowany ani monitorowany przez zespół HumHub.',
     'Information' => 'Informacje',
     'Install' => 'Zainstaluj',
     'Installed' => 'Zainstalowane',
     'Invalid module license key!' => 'Błędny klucz licencyjny modułu!',
-    'Invalid module license key!
-' => 'Błędny klucz licencyjny modułu!',
     'Latest version:' => 'Ostatnia wersja:',
     'Learn more' => 'Dowiedz się więcej',
     'License Key:' => 'Klucz licencyjny:',
@@ -89,14 +72,6 @@ The license was successfully removed!
     'Module download failed! (%error%)' => 'Nie powiodło się pobieranie modułu! (%error%)',
     'Module is <strong>installing...</strong>' => 'Moduł jest <strong>instalowany...</strong>',
     'Module license added!' => 'Licencja modułu dodana!',
-    'Module license added!
-' => 'Dodano licencję modułu!',
-    'Module license key cannot be empty!
-' => 'Klucz licencji modułu nie może być pusty!',
-    'Module not found or enabled!
-' => 'Moduł nie został odnaleziony lub włączony!',
-    'Module not found!
-' => 'Moduł nie odnaleziony!',
     'More info' => 'Więcej informacji',
     'New' => 'Nowe',
     'No compatible module version found!' => 'Nie znaleziono kompatybilnej wersji modułu!',
@@ -116,7 +91,6 @@ The license was successfully removed!
     'Remove license key' => 'Usuń klucz licencyjny',
     'Save and update' => 'Zapisz i aktualizuj',
     'Search' => 'Szukaj',
-    'Search...' => 'Szukaj...',
     'Stop updating' => 'Zatrzymaj aktualizowanie',
     'Tags' => 'Tagi',
     'The HumHub project does not guarantee the functionality, quality or the continuous development of this Module.' => 'Zespół HumHub nie gwarantuje funkcjonalności, jakości lub ciągłości wsparcia tego modułu.',
@@ -136,5 +110,21 @@ The license was successfully removed!
     'Would you like to jump straight to it?' => 'Czy chcesz przejść do niego?',
     'Your HumHub installation is up to date!' => 'Ta instalacja HumHub jest na czasie!',
     'Add License' => '',
+    'Are you sure you want to remove the license key?' => '',
+    'Buy non-curated module?' => '',
+    'Continue to checkout' => '',
+    'Description, Name, Keywords...' => '',
     'Edit License' => '',
+    'I understand and want to continue.' => '',
+    'If this Module is additionally marked as <strong>"Not curated"</strong>, it is not part of our curated selection and has not been reviewed by the HumHub team for quality, security or compatibility.' => '',
+    'Install anyway' => '',
+    'Install non-curated module?' => '',
+    'Module options' => '',
+    'Not curated' => '',
+    'Show non-curated modules' => '',
+    'Show non-curated modules?' => '',
+    'These modules are provided by independent partners and developers and are <strong>not part of our curated selection</strong>.<br><br>HumHub does not review them for quality, security or compatibility. Support, updates and licensing are handled by the respective provider.<br><br>Make sure you trust the source of a module before installing it.' => '',
+    'Yes, show non-curated modules' => '',
+    'You are about to install <strong>{moduleName}</strong>, a module that is not part of our curated selection.<br><br>It is provided by an independent partner or developer and has not been reviewed by the HumHub team for quality, security or compatibility. Support, updates and licensing are handled by the respective provider.<br><br>Make sure you trust the source before continuing.' => '',
+    'You are about to purchase <strong>{moduleName}</strong>, a module that is not part of our curated selection.<br><br>It is provided by an independent partner or developer and has not been reviewed by the HumHub team for quality, security or compatibility. Support, updates and licensing are handled by the respective provider.<br><br>Make sure you trust the source before continuing.' => '',
 ];

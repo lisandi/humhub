@@ -2,12 +2,6 @@
 
 return [
     '
-Module successfully disabled!
-' => 'Modulen har inaktiverats!',
-    '
-Module successfully enabled!
-' => 'Modulen har aktiverats!',
-    '
 No active Professional Edition license found!
 ' => 'Ingen aktiv Professional Edition-licens hittades!',
     '
@@ -21,12 +15,6 @@ The license was successfully activated!
 The license was successfully removed!
 
 ' => 'Licensen togs bort!',
-    '--- Disable module: {moduleId} ---
-
-' => '--- Inaktivera modul: {moduleId} ---',
-    '--- Enable module: {moduleId} ---
-
-' => '--- Aktivera modul: {moduleId} ---',
     '<strong>Activate</strong> your Professional Edition' => '<strong>Aktivera</strong> din PROFESSIONELLA UTGÅVA',
     '<strong>General</strong> Settings' => '<strong>Allmänna</strong> inställningar',
     'A new update is available (HumHub %version%)!' => 'En ny uppdatering är tillgänglig (HumHub %version%)!',
@@ -41,13 +29,11 @@ The license was successfully removed!
     'Available Updates' => 'Tillgängliga uppdateringar',
     'Buy' => 'Köp',
     'Buy (%price%)' => 'Köp (%pris%)',
+    'Cancel' => 'Avbryt',
     'Categories' => 'Kategorier',
     'Changelog' => 'Ändringslogg',
-    'Community' => 'Community',
     'Configure' => 'Konfigurera',
     'Could not connect to HumHub API!' => 'Kunde inte ansluta till HumHub API!',
-    'Could not connect to HumHub API!
-' => 'Kunde inte ansluta till HumHub API!',
     'Could not connect to license server!' => 'Kunde inte ansluta till licensservern!',
     'Could not extract module!' => 'Kunde inte extrahera modulen!',
     'Could not find requested module!' => 'Kunde inte hitta begärda modulen!',
@@ -63,13 +49,10 @@ The license was successfully removed!
     'Find all the modules you can add to your network in our HumHub Marketplace. Discover numerous add-ons and features that customize the software and give you the possibility to configure your network to your needs.' => 'Hitta alla moduler du kan lägga till i ditt nätverk på vår HumHub Marketplace. Upptäck många tillägg och funktioner som anpassar programvaran och ger dig möjlighet att konfigurera ditt nätverk efter dina behov.',
     'General Settings' => 'Allmänna inställningar',
     'Great!' => 'Bra!',
-    'If this Module is additionally marked as <strong>"Community"</strong> it is neither tested nor monitored by the HumHub project team.' => 'Om denna modul dessutom är markerad som <strong>"Community"</strong> testas den varken eller övervakas den av HumHub-projektteamet.',
     'Information' => 'Information',
     'Install' => 'Installera',
     'Installed' => 'Installerad',
     'Invalid module license key!' => 'Ogiltig modullicensnyckel!',
-    'Invalid module license key!
-' => 'Ogiltig licensnyckel för modul!',
     'Latest version:' => 'Senaste versionen:',
     'Learn more' => 'Läs mer',
     'License Key:' => 'Licensnyckel:',
@@ -89,14 +72,6 @@ The license was successfully removed!
     'Module download failed! (%error%)' => 'Modulnedladdning misslyckades! (%error%)',
     'Module is <strong>installing...</strong>' => 'Modulen <strong>installeras...</strong>',
     'Module license added!' => 'Modullicens tillagd!',
-    'Module license added!
-' => 'Modullicens tillagd!',
-    'Module license key cannot be empty!
-' => 'Licensnyckel för Modul kan inte vara tom!',
-    'Module not found or enabled!
-' => 'Modulen hittades inte eller kunde inte aktiveras!',
-    'Module not found!
-' => 'Modulen hittades inte!',
     'More info' => 'Mer information',
     'New' => 'Ny',
     'No compatible module version found!' => 'Ingen kompatibel modulversion hittades!',
@@ -116,7 +91,6 @@ The license was successfully removed!
     'Remove license key' => 'Ta bort licensnyckel',
     'Save and update' => 'Spara och uppdatera',
     'Search' => 'Sök',
-    'Search...' => 'Sök...',
     'Stop updating' => 'Avsluta uppdatering',
     'Tags' => 'Taggar',
     'The HumHub project does not guarantee the functionality, quality or the continuous development of this Module.' => 'HumHub-projektet garanterar inte funktionaliteten, kvaliteten eller den kontinuerliga utvecklingen av denna modul.',
@@ -136,5 +110,21 @@ The license was successfully removed!
     'Would you like to jump straight to it?' => 'Skulle du vilja hoppa direkt till det?',
     'Your HumHub installation is up to date!' => 'Din HumHub-installation är uppdaterad!',
     'Add License' => '',
+    'Are you sure you want to remove the license key?' => '',
+    'Buy non-curated module?' => '',
+    'Continue to checkout' => '',
+    'Description, Name, Keywords...' => '',
     'Edit License' => '',
+    'I understand and want to continue.' => '',
+    'If this Module is additionally marked as <strong>"Not curated"</strong>, it is not part of our curated selection and has not been reviewed by the HumHub team for quality, security or compatibility.' => '',
+    'Install anyway' => '',
+    'Install non-curated module?' => '',
+    'Module options' => '',
+    'Not curated' => '',
+    'Show non-curated modules' => '',
+    'Show non-curated modules?' => '',
+    'These modules are provided by independent partners and developers and are <strong>not part of our curated selection</strong>.<br><br>HumHub does not review them for quality, security or compatibility. Support, updates and licensing are handled by the respective provider.<br><br>Make sure you trust the source of a module before installing it.' => '',
+    'Yes, show non-curated modules' => '',
+    'You are about to install <strong>{moduleName}</strong>, a module that is not part of our curated selection.<br><br>It is provided by an independent partner or developer and has not been reviewed by the HumHub team for quality, security or compatibility. Support, updates and licensing are handled by the respective provider.<br><br>Make sure you trust the source before continuing.' => '',
+    'You are about to purchase <strong>{moduleName}</strong>, a module that is not part of our curated selection.<br><br>It is provided by an independent partner or developer and has not been reviewed by the HumHub team for quality, security or compatibility. Support, updates and licensing are handled by the respective provider.<br><br>Make sure you trust the source before continuing.' => '',
 ];

@@ -10,7 +10,6 @@ namespace humhub\modules\admin\controllers;
 
 use Exception;
 use humhub\helpers\ThemeHelper;
-use humhub\libs\LogoImage;
 use humhub\models\UrlOembed;
 use humhub\modules\admin\components\Controller;
 use humhub\modules\admin\libs\CacheHelper;
@@ -28,12 +27,9 @@ use humhub\modules\admin\models\forms\StatisticSettingsForm;
 use humhub\modules\admin\models\Log;
 use humhub\modules\admin\notifications\NewVersionAvailable;
 use humhub\modules\admin\permissions\ManageSettings;
-use humhub\modules\notification\models\forms\NotificationSettings;
+use humhub\modules\topic\models\forms\TopicSettingsForm;
 use humhub\modules\topic\models\Topic;
-use humhub\modules\user\helpers\LoginBackgroundImageHelper;
 use humhub\modules\user\models\User;
-use humhub\modules\web\pwa\widgets\SiteIcon;
-use humhub\widgets\mails\MailHeaderImage;
 use humhub\widgets\modal\ModalClose;
 use Yii;
 use yii\data\ActiveDataProvider;
@@ -114,7 +110,7 @@ class SettingController extends Controller
     public function actionDeleteLogoImage()
     {
         $this->forcePostRequest();
-        LogoImage::set(null);
+        Yii::$app->img->logo->delete();
 
         Yii::$app->response->format = 'json';
         return [];
@@ -123,8 +119,7 @@ class SettingController extends Controller
     public function actionDeleteLoginBackgroundImage()
     {
         $this->forcePostRequest();
-        LoginBackgroundImageHelper::set(null);
-
+        Yii::$app->img->loginBackground->delete();
         Yii::$app->response->format = 'json';
         return [];
     }
@@ -132,8 +127,7 @@ class SettingController extends Controller
     public function actionDeleteMailHeaderImage()
     {
         $this->forcePostRequest();
-        MailHeaderImage::set(null);
-
+        Yii::$app->img->mailHeader->delete();
         Yii::$app->response->format = 'json';
         return [];
     }
@@ -144,7 +138,7 @@ class SettingController extends Controller
     public function actionDeleteIconImage()
     {
         $this->forcePostRequest();
-        SiteIcon::set(null);
+        Yii::$app->img->icon->delete();
         return $this->asJson([]);
     }
 
@@ -173,21 +167,6 @@ class SettingController extends Controller
         }
 
         return $this->render('statistic', [
-            'model' => $form,
-        ]);
-    }
-
-    /**
-     * Notification Mailing Settings
-     */
-    public function actionNotification()
-    {
-        $form = new NotificationSettings();
-        if ($form->load(Yii::$app->request->post()) && $form->save()) {
-            $this->view->saved();
-        }
-
-        return $this->render('notification', [
             'model' => $form,
         ]);
     }
@@ -396,6 +375,12 @@ class SettingController extends Controller
             }
         }
 
+        $topicSettings = new TopicSettingsForm();
+        if ($topicSettings->load(Yii::$app->request->post()) && $topicSettings->save()) {
+            $this->view->saved();
+            $this->redirect('topics');
+        }
+
         return $this->render('topics', [
             'contentContainer' => null,
             'dataProvider' => new ActiveDataProvider([
@@ -409,6 +394,7 @@ class SettingController extends Controller
             ]),
             'addModel' => $model,
             'suggestGlobalConversion' => $suggestGlobalConversion,
+            'topicSettings' => $topicSettings,
         ]);
     }
 

@@ -12,7 +12,6 @@ use humhub\components\ActiveRecord;
 use humhub\components\behaviors\PolymorphicRelation;
 use humhub\modules\content\components\ContentActiveRecord;
 use humhub\modules\content\components\ContentAddonActiveRecord;
-use humhub\modules\content\models\Content;
 use humhub\modules\user\notifications\Mentioned;
 use yii\base\Exception;
 use yii\base\InvalidArgumentException;
@@ -89,36 +88,18 @@ class Mentioning extends ActiveRecord
     {
         if ($source instanceof ContentActiveRecord) {
             /** @var ContentActiveRecord $source */
-            return $source->content->createdBy;
+            // Attribute the mention to whoever last saved the content (e.g. an editor who
+            // added the mention), falling back to the original author when no updater is
+            // recorded (e.g. content created/updated outside a user session).
+            return $source->content->updatedBy ?? $source->content->createdBy;
         } elseif ($source instanceof ContentAddonActiveRecord) {
             /** @var ContentAddonActiveRecord $source */
-            return $source->user;
+            // Same reasoning as above: prefer the last editor (e.g. a moderator who edited
+            // someone else's comment and added a mention) over the original author.
+            return $source->updatedBy ?? $source->createdBy;
         }
 
         return null;
-    }
-
-    /**
-     * Parses a given text for mentioned users and creates an mentioning for them.
-     *
-     * @param ContentActiveRecord|ContentAddonActiveRecord $record
-     * @param string $text
-     *
-     * @return User[] Mentioned users
-     * @throws Exception
-     * @deprecated since 1.3 use [[\humhub\modules\content\widgets\richtext\RichText::processText()]] instead
-     */
-    public static function parse($record, $text)
-    {
-        $result = [];
-        if ($record instanceof ContentActiveRecord || $record instanceof ContentAddonActiveRecord) {
-            preg_replace_callback('@\@\-u([\w\-]*?)($|\s|\.)@', function ($hit) use (&$record, &$result): void {
-                $result = array_merge($result, static::mention($hit[1], $record));
-            }, $text);
-        } else {
-            throw new Exception("Mentioning can only used in ContentActiveRecord or ContentAddonActiveRecord objects!");
-        }
-        return $result;
     }
 
     /**

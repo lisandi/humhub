@@ -13,8 +13,6 @@ Yii::setAlias('@humhub', $_ENV['HUMHUB_ALIASES__HUMHUB'] ?? realpath(__DIR__ . '
 
 // Workaround: PHP 7.3 compatible ZF2 ArrayObject class
 Yii::$classMap[\Zend\Stdlib\ArrayObject::class] = '@humhub/compat/ArrayObject.php';
-Yii::$classMap['humhub\modules\search\interfaces\Searchable'] = '@humhub/compat/search/Searchable.php';
-Yii::$classMap['humhub\modules\search\events\SearchAddEvent'] = '@humhub/compat/search/SearchAddEvent.php';
 
 // Bootstrap 5 Migration
 Yii::$classMap['yii\bootstrap\BootstrapAsset'] = '@humhub/compat/bootstrap/BootstrapAsset.php';
@@ -31,6 +29,17 @@ if (!defined('PKCS7_DETACHED')) {
     define('PKCS7_DETACHED', 64);
 }
 
+// The context dump of log entries contains `$_SERVER`, which also holds every variable loaded from `.env`.
+// Values of keys whose name contains one of these words are masked (case-insensitive, e.g.
+// `HUMHUB_CONFIG__COMPONENTS__DB__PASSWORD`, `HUMHUB_FIXED_SETTINGS__BASE__MAILER_DSN`, `HTTP_AUTHORIZATION`).
+$logMaskedWords = ['PASS', 'SECRET', 'KEY', 'TOKEN', 'DSN', 'CREDENTIAL', 'AUTH', 'PRIVATE', 'SALT', 'COOKIE'];
+$logMaskVars = [];
+foreach (['_SERVER', '_GET'] as $logVar) {
+    foreach ($logMaskedWords as $logMaskedWord) {
+        $logMaskVars[] = $logVar . '.*' . $logMaskedWord . '*';
+    }
+}
+
 $logTargetConfig = [
     'levels' => ['error', 'warning'],
     'except' => [
@@ -43,22 +52,18 @@ $logTargetConfig = [
         'yii\web\User::renewAuthStatus',
     ],
     'logVars' => ['_GET', '_SERVER'],
-    'maskVars' => [
-        '_SERVER.HTTP_AUTHORIZATION',
-        '_SERVER.PHP_AUTH_USER',
-        '_SERVER.PHP_AUTH_PW',
-        '_SERVER.HUMHUB_CONFIG__COMPONENTS__DB__PASSWORD',
-    ],
+    'maskVars' => $logMaskVars,
 ];
 
 $config = [
     'name' => 'HumHub',
-    'version' => '1.18.6-pl1',
+    'version' => '1.19.0',
     'minRecommendedPhpVersion' => '8.2',
     'minSupportedPhpVersion' => '8.2',
     'basePath' => dirname(__DIR__) . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR,
     'bootstrap' => [
         'log',
+        'systemRevision',
         'humhub\components\bootstrap\ModuleAutoLoader',
         'humhub\components\bootstrap\ComponentLoader',
         'queue',
@@ -70,13 +75,15 @@ $config = [
         '@webroot' => realpath(__DIR__ . '/../../../'),
         '@bower' => '@vendor/bower-asset',
         '@npm' => '@vendor/npm-asset',
-        '@filestore' => '@webroot/uploads/file',
         '@config' => '@app/config',
         '@themes' => '@webroot/themes',
     ],
     'components' => [
         'moduleManager' => [
             'class' => \humhub\components\ModuleManager::class,
+        ],
+        'gateManager' => [
+            'class' => \humhub\components\gates\GateManager::class,
         ],
         'notification' => [
             'class' => \humhub\modules\notification\components\NotificationManager::class,
@@ -88,6 +95,20 @@ $config = [
                     'renderer' => ['class' => \humhub\modules\notification\renderer\MailRenderer::class],
                 ],
                 \humhub\modules\notification\targets\MobileTarget::class => [],
+            ],
+        ],
+        'fs' => [
+            'class' => 'humhub\components\fs\FilesystemManager',
+            'mounts' => [
+                'assets' => [
+                    'class' => 'humhub\components\fs\LocalMountConfig',
+                    'path' => '@webroot/assets',
+                    'baseUrl' => '@web/assets',
+                ],
+                'data' => [
+                    'class' => 'humhub\components\fs\LocalMountConfig',
+                    'path' => '@webroot/uploads',
+                ],
             ],
         ],
         'log' => [
@@ -139,6 +160,9 @@ $config = [
         'cache' => [
             'class' => \yii\caching\FileCache::class,
         ],
+        'systemRevision' => [
+            'class' => \humhub\components\bootstrap\SystemRevision::class,
+        ],
         'runtimeCache' => [
             'class' => \yii\caching\ArrayCache::class,
             'serializer' => false,
@@ -150,20 +174,37 @@ $config = [
                 'class' => \yii\web\View::class,
                 'theme' => [
                     'class' => \humhub\components\Theme::class,
-                    'name' => 'HumHub',
+                    'name' => \humhub\components\Theme::CORE_THEME_NAME,
+                    'basePath' => '@humhub/themes/' . \humhub\components\Theme::CORE_THEME_NAME,
                 ],
             ],
         ],
         'assetManager' => [
-            'class' => \humhub\components\AssetManager::class,
+            'class' => \humhub\components\assets\AssetManager::class,
             'appendTimestamp' => true,
-            'bundles' => require(__DIR__ . '/' . (YII_ENV_PROD || YII_ENV_TEST ? 'assets-prod.php' : 'assets-dev.php')),
+            'bundles' => (function () {
+                $file = __DIR__ . '/' . (YII_ENV_PROD || YII_ENV_TEST ? 'assets-prod.php' : 'assets-dev.php');
+                return file_exists($file) ? require $file : [];
+            })(),
+        ],
+        'img' => [
+            'class' => 'humhub\components\assets\AssetImageRegistry',
+            'definitions' => [
+                'logo' => ['file' => '/logo_image/logo.png'],
+                'icon' => [
+                    'file' => '/icon/icon.png',
+                    'defaultFile' => '@humhub/resources/img/default_icon.png',
+                ],
+                'loginBackground' => ['file' => '/login-bg/background.png'],
+                'mailHeader' => ['file' => '/mail-header/header.png'],
+            ],
         ],
         'view' => [
             'class' => \humhub\components\View::class,
             'theme' => [
                 'class' => \humhub\components\Theme::class,
                 'name' => \humhub\components\Theme::CORE_THEME_NAME,
+                'basePath' => '@humhub/themes/' . \humhub\components\Theme::CORE_THEME_NAME,
             ],
         ],
         'db' => [
@@ -183,6 +224,10 @@ $config = [
         'authClientCollection' => [
             'class' => \humhub\modules\user\authclient\Collection::class,
             'clients' => [],
+        ],
+        'userSourceCollection' => [
+            'class' => \humhub\modules\user\source\UserSourceCollection::class,
+            'userSources' => [],
         ],
         'queue' => [
             'class' => \humhub\modules\queue\driver\MySQL::class,
@@ -298,7 +343,7 @@ $config = [
             'class' => \humhub\modules\content\widgets\richtext\ProsemirrorRichText::class,
         ],
         'twemoji' => [
-            'path' => '@web-static/img/twemoji/',
+            'path' => null,
             'size' => '72x72',
         ],
         'enablePjax' => true,

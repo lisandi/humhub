@@ -17,6 +17,7 @@ AppAsset::register($this);
     <title><?php echo Html::encode($this->title); ?></title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <meta name="language" content="en"/>
+    <meta name="robots" content="noindex, nofollow"/>
 
     <?= Html::csrfMetaTags() ?>
 
@@ -32,7 +33,7 @@ AppAsset::register($this);
 <div class="container installer" style="margin: 0 auto; max-width: 770px;">
     <div class="logo">
         <a class="animated fadeIn" href="http://www.humhub.org" target="_blank" class="">
-            <img src="<?php echo Yii::getAlias("@web-static/resources/installer"); ?>/humhub_logo.png" alt="HumHub Logo" style="max-width: 296px; height: auto;">
+            <img src="<?= Yii::getAlias(Yii::$app->assetManager->getPublishedUrl('@humhub/resources')) ?>/resources/installer/humhub_logo.png" alt="HumHub Logo" style="max-width: 296px; height: auto;">
         </a>
     </div>
 

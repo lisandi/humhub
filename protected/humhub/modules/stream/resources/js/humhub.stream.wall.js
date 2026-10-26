@@ -25,8 +25,11 @@ humhub.module('stream.wall', function (module, require, $) {
     var loader = require('ui.loader');
     var container = require('content.container');
     var user = require('user');
+    var i18n = require('i18n');
 
     var DATA_STREAM_TOPIC = 'stream-topic';
+
+    module.requiredI18nCategories = ['ContentModule.base'];
 
     /**
      * Stream implementation for main wall streams.
@@ -176,7 +179,7 @@ humhub.module('stream.wall', function (module, require, $) {
         var that = this;
         var appendToStreamTimeout;
 
-        var $badge = $(string.template(WallStream.template.updateBadge, {text: module.config.updatesAvailable}));
+        var $badge = $(string.template(WallStream.template.updateBadge, {text: i18n.t('ContentModule.base', 'New Updates Available!')}));
 
         $('body').append($badge);
 
@@ -237,6 +240,7 @@ humhub.module('stream.wall', function (module, require, $) {
     };
 
     WallStream.prototype.loadSuppressed = function (evt) {
+        var that = this;
         var key = evt.$trigger.data('entry-key');
         var keys = (evt.$trigger.data('entry-keys') || '').split(',');
         var entry = this.entry(key);
@@ -246,12 +250,43 @@ humhub.module('stream.wall', function (module, require, $) {
             entry = this.entry(key);
         }
 
+        var $loadSuppressed = evt.$trigger.closest('.load-suppressed');
+
         this.load({
-            'insertAfter': entry ? entry.$ : evt.$trigger.closest('.load-suppressed'),
+            'insertAfter': entry ? entry.$ : $loadSuppressed,
             'from': key,
             'suppressionsOnly': true
-        }).then(function (resp) {
-            evt.$trigger.closest('.load-suppressed').remove();
+        }).then(function (request) {
+            // Move keyboard focus into the first newly loaded entry before removing
+            // the trigger link. Removing a focused element makes the browser drop
+            // focus to <body>, so the next Tab press would restart from the top of
+            // the page instead of continuing into the content that was just loaded.
+            var $firstNewEntry = null;
+            if (request && request.forEachResult) {
+                request.forEachResult(function (resultKey) {
+                    if (!$firstNewEntry) {
+                        var newEntry = that.entry(resultKey);
+                        if (newEntry) {
+                            $firstNewEntry = newEntry.$;
+                        }
+                    }
+                });
+            }
+
+            $loadSuppressed.remove();
+
+            if ($firstNewEntry && $firstNewEntry.length) {
+                var $focusTarget = $firstNewEntry
+                    .find('a[href], button, input, select, textarea, [tabindex]')
+                    .filter(':visible')
+                    .first();
+
+                if (!$focusTarget.length) {
+                    $focusTarget = $firstNewEntry.attr('tabindex', $firstNewEntry.attr('tabindex') || '-1');
+                }
+
+                $focusTarget.trigger('focus');
+            }
         }).finally(function () {
             evt.finish();
         });

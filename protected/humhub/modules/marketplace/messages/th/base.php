@@ -2,12 +2,6 @@
 
 return [
     '
-Module successfully disabled!
-' => 'ปิดการใช้งานโมดูลสำเร็จแล้ว',
-    '
-Module successfully enabled!
-' => 'เปิดใช้งานโมดูลสำเร็จแล้ว',
-    '
 No active Professional Edition license found!
 ' => 'ไม่พบใบอนุญาต Professional Edition ที่ใช้งานอยู่',
     '
@@ -21,21 +15,14 @@ The license was successfully activated!
 The license was successfully removed!
 
 ' => 'ใบอนุญาตถูกลบออกเรียบร้อยแล้ว',
-    '--- Disable module: {moduleId} ---
-
-' => '--- ปิดการใช้งานโมดูล: {moduleId} ---',
-    '--- Enable module: {moduleId} ---
-
-' => '--- เปิดใช้งานโมดูล: {moduleId} ---',
     '<strong>Activate</strong> your Professional Edition' => '<strong>เปิดใช้งาน</strong> Professional Edition ของคุณ',
     'Add purchased module by license key' => 'เพิ่มโมดูลที่ซื้อด้วยรหัสใบอนุญาต',
     'All' => 'ทั้งหมด',
     'All {moduleId} module content will be deleted. Continue?' => 'เนื้อหาโมดูล {moduleId} ทั้งหมดจะถูกลบออก ดำเนินการต่อ',
     'Buy' => 'ซื้อ',
     'Buy (%price%)' => 'ซื้อ (%ราคา%)',
+    'Cancel' => 'ยกเลิก',
     'Configure' => 'กำหนดค่า',
-    'Could not connect to HumHub API!
-' => 'ไม่สามารถเชื่อมต่อกับ HumHub API!',
     'Could not connect to license server!' => 'ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ใบอนุญาต',
     'Could not extract module!' => 'ไม่สามารถแยกโมดูลได้',
     'Could not find requested module!' => 'ไม่พบโมดูลที่ร้องขอ!',
@@ -45,12 +32,9 @@ The license was successfully removed!
     'Enable' => 'เปิดใช้งาน',
     'Enabled' => 'เปิดใช้งานแล้ว',
     'General Settings' => 'การตั้งค่าทั่วไป',
-    'If this Module is additionally marked as <strong>"Community"</strong> it is neither tested nor monitored by the HumHub project team.' => 'หากโมดูลนี้ถูกทำเครื่องหมายเพิ่มเติมเป็น <strong>"ชุมชน"</strong> จะไม่ได้รับการทดสอบหรือตรวจสอบโดยทีมงานโครงการ HumHub',
     'Information' => 'ข้อมูล',
     'Install' => 'ติดตั้ง',
     'Installed' => 'ติดตั้งแล้ว',
-    'Invalid module license key!
-' => 'รหัสใบอนุญาตโมดูลไม่ถูกต้อง',
     'Latest version:' => 'รุ่นล่าสุด:',
     'License Key:' => 'รหัสใบอนุญาต:',
     'License key' => 'รหัสใบอนุญาต',
@@ -61,12 +45,6 @@ The license was successfully removed!
     'Max. users:' => 'แม็กซ์ ผู้ใช้:',
     'Module directory %modulePath% is not writeable!' => 'ไดเรกทอรีโมดูล %modulePath% ไม่สามารถเขียนได้',
     'Module download failed! (%error%)' => 'การดาวน์โหลดโมดูลล้มเหลว! (%ผิดพลาด%)',
-    'Module license added!
-' => 'เพิ่มใบอนุญาตโมดูลแล้ว',
-    'Module license key cannot be empty!
-' => 'รหัสใบอนุญาตของโมดูลไม่สามารถเว้นว่างได้',
-    'Module not found!
-' => 'ไม่พบโมดูล',
     'More info' => 'ข้อมูลเพิ่มเติม',
     'New' => 'ใหม่',
     'No compatible module version found!' => 'ไม่พบเวอร์ชันโมดูลที่เข้ากันได้!',
@@ -79,7 +57,6 @@ The license was successfully removed!
     'Remove license key' => 'ลบรหัสใบอนุญาต',
     'Save and update' => 'บันทึกและอัปเดต',
     'Search' => 'ค้นหา',
-    'Search...' => 'ค้นหา...',
     'Tags' => 'แท็ก',
     'The HumHub project does not guarantee the functionality, quality or the continuous development of this Module.' => 'โปรเจ็กต์ HumHub ไม่รับประกันการทำงาน คุณภาพ หรือการพัฒนาอย่างต่อเนื่องของโมดูลนี้',
     'Third-party' => 'บุคคลที่สาม',
@@ -98,18 +75,25 @@ The license was successfully removed!
     'After installing the required module, all you have to do is activate it. After that you can instantly start using the module or function. Please note that some modules need to be configured before use.' => '',
     'All modules' => '',
     'Allow module versions in beta status' => '',
+    'Are you sure you want to remove the license key?' => '',
     'Available Updates' => '',
+    'Buy non-curated module?' => '',
     'Categories' => '',
     'Changelog' => '',
-    'Community' => '',
+    'Continue to checkout' => '',
     'Could not connect to HumHub API!' => '',
     'Could not find the requested module!' => '',
     'Deprecated' => '',
+    'Description, Name, Keywords...' => '',
     'Edit License' => '',
     'Enable now' => '',
     'Featured' => '',
     'Find all the modules you can add to your network in our HumHub Marketplace. Discover numerous add-ons and features that customize the software and give you the possibility to configure your network to your needs.' => '',
     'Great!' => '',
+    'I understand and want to continue.' => '',
+    'If this Module is additionally marked as <strong>"Not curated"</strong>, it is not part of our curated selection and has not been reviewed by the HumHub team for quality, security or compatibility.' => '',
+    'Install anyway' => '',
+    'Install non-curated module?' => '',
     'Invalid module license key!' => '',
     'Learn more' => '',
     'Marketplace is disabled.' => '',
@@ -120,21 +104,27 @@ The license was successfully removed!
     'Module configuration' => '',
     'Module is <strong>installing...</strong>' => '',
     'Module license added!' => '',
-    'Module not found or enabled!
-' => '',
+    'Module options' => '',
     'No modules found.' => '',
     'No, thank you!' => '',
     'Not Installed' => '',
+    'Not curated' => '',
     'Official' => '',
     'PROFESSIONAL EDITION' => '',
     'Partner' => '',
     'Professional Edition' => '',
+    'Show non-curated modules' => '',
+    'Show non-curated modules?' => '',
     'Stop updating' => '',
+    'These modules are provided by independent partners and developers and are <strong>not part of our curated selection</strong>.<br><br>HumHub does not review them for quality, security or compatibility. Support, updates and licensing are handled by the respective provider.<br><br>Make sure you trust the source of a module before installing it.' => '',
     'Update all' => '',
     'We are almost there! As a final step, we recommend that you take a look at the module configuration, where you will find numerous configuration options, some of which are required.' => '',
     'Well done! To make the module available within your network, you will also need to enable it. Do you want to enable it now?' => '',
     'Well done! You have successfully installed and enabled the module!' => '',
     'Without category' => '',
     'Would you like to jump straight to it?' => '',
+    'Yes, show non-curated modules' => '',
+    'You are about to install <strong>{moduleName}</strong>, a module that is not part of our curated selection.<br><br>It is provided by an independent partner or developer and has not been reviewed by the HumHub team for quality, security or compatibility. Support, updates and licensing are handled by the respective provider.<br><br>Make sure you trust the source before continuing.' => '',
+    'You are about to purchase <strong>{moduleName}</strong>, a module that is not part of our curated selection.<br><br>It is provided by an independent partner or developer and has not been reviewed by the HumHub team for quality, security or compatibility. Support, updates and licensing are handled by the respective provider.<br><br>Make sure you trust the source before continuing.' => '',
     'Your HumHub installation is up to date!' => '',
 ];

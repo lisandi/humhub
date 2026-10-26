@@ -12,9 +12,12 @@ humhub.module('file', function (module, require, $) {
     var string = util.string;
     var action = require('action');
     var event = require('event');
+    var i18n = require('i18n');
 
 
     var view = require('ui.view');
+
+    module.requiredI18nCategories = ['base'];
 
     var Upload = function (node, options) {
         Widget.call(this, node, options);
@@ -294,7 +297,7 @@ humhub.module('file', function (module, require, $) {
         return new Promise(function (resolve, reject) {
             _delete(file).then(function (response) {
                 that.$form.find('[value="' + file.guid + '"]').remove();
-                module.log.success('success.delete', true);
+                module.log.success(i18n.t('base', 'The file has been deleted.'), true);
                 that.enable();
                 that.fire('fileDeleted', [file]);
                 resolve();
@@ -313,7 +316,7 @@ humhub.module('file', function (module, require, $) {
         }
 
         if (this.errors.length) {
-            this.statusError(module.text('error.upload'));
+            this.statusError(i18n.t('base', 'Some files could not be uploaded:'));
             this.errors = [];
         }
 
@@ -444,7 +447,7 @@ humhub.module('file', function (module, require, $) {
         promise.then(function (response) {
             that.remove(file).then(function () {
                 if (!that.source) {
-                    module.log.success('success.delete', true);
+                    module.log.success(i18n.t('base', 'The file has been deleted.'), true);
                 }
                 if (!that.hasFiles()) {
                     that.hide();
@@ -553,6 +556,16 @@ humhub.module('file', function (module, require, $) {
             });
 
             upload.finish();
+        });
+
+        // The upload trigger (e.g. "Attach Files") is a <span data-action-click>
+        // with tabindex, not a native <button> - so unlike a real button, the
+        // browser does not turn Enter/Space into a click on its own. Do that here.
+        $(document).on('keydown', '[data-action-click="file.upload"]', function (evt) {
+            if (evt.which === 13 /* Enter */ || evt.which === 32 /* Space */) {
+                evt.preventDefault();
+                $(this).trigger('click');
+            }
         });
 
         // Bootstrap 3 drop-down menu auto dropup according to screen position

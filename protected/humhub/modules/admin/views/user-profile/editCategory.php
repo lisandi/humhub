@@ -1,11 +1,11 @@
 <?php
 
 use humhub\helpers\Html;
-use humhub\modules\ui\form\widgets\SortOrderField;
 use humhub\modules\user\models\ProfileFieldCategory;
 use humhub\widgets\bootstrap\Button;
+use humhub\widgets\bootstrap\Link;
 use humhub\widgets\form\ActiveForm;
-use yii\helpers\Url;
+use humhub\widgets\form\SortOrderField;
 
 /* @var $category ProfileFieldCategory */
 ?>
@@ -33,8 +33,10 @@ use yii\helpers\Url;
     <?= Button::save()->submit() ?>
 
     <?php if (!$category->isNewRecord && !$category->is_system): ?>
-        <?= Button::danger(Yii::t('AdminModule.user', 'Delete'))
-            ->link(Url::to(['delete-category', 'id' => $category->id]))->confirm()->right() ?>
+        <?= Link::danger(Yii::t('AdminModule.user', 'Delete'))
+            ->post(['delete-category', 'id' => $category->id])
+            ->confirm()
+            ->right() ?>
     <?php endif; ?>
 
     <?php ActiveForm::end(); ?>
