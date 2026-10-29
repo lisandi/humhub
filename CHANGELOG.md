@@ -1,8 +1,32 @@
 HumHub Changelog
 ================
 
-1.19.1 (Unreleased)
+1.19.4 (Unreleased)
 -------------------
+
+- Fix #8663: `module/remove` did nothing for an enabled module whose files are missing (e.g. no compatible version to reinstall); its enabled flag is now removed from the database
+- Fix #8665: The latest HumHub version (About page, update notification) was only refreshed after flushing the cache
+
+1.19.3 (October 27, 2026)
+-------------------------
+
+- Fix #8646: Text of notifications in the top bar dropdown was invisible (top bar text color instead of the list text color, since 1.19.1)
+- Fix #8648: Invite tokens (link and email) could end with `-` or `_`, which is often cut off when the link is auto-detected in texts
+- Fix #8647: Text of notifications in the top bar dropdown was invisible (top bar text color instead of the list text color, since 1.19.1)
+- Fix #8652: Concurrent requests with the same new or expired session ID (e.g. several AJAX requests after the session expired) failed with "Duplicate entry" in `user_http_session`
+- Fix #8654: Activity types excluded from e-mail summaries reappeared after the update to 1.19 (renamed activity classes were not migrated in settings)
+- Fix #8656: A failing daily or hourly cron handler caused the whole run to repeat on every cron tick (e.g. daily summary e-mail spam); run times are now stored before the handlers run; Exceptions of cron handlers are now logged (category `cron`)
+- Fix #8657: A user gate page (e.g. `/twofa/check`) opened by a guest was stored as the return URL and caused an endless redirect loop after login
+- Fix #8660: Update `phpoffice/phpspreadsheet` to 5.10.0 (GHSA-3x94-m842-937c), `symfony/http-foundation` and `symfony/yaml` to 7.4.21 (security fixes)
+
+1.19.2 (October 26, 2026)
+-------------------------
+
+> This release also fixes [security](https://github.com/humhub/humhub/security/advisories) issues.
+
+- Enh #8644: "Template" profile fields allow more Twig features (e.g. `for`, `set`, `join`, `split`, `date`, `range`), configurable via `'user' => ['profileFieldTemplateAllowedTags' | 'profileFieldTemplateAllowedFilters' | 'profileFieldTemplateAllowedFunctions' => [...]]`
+- Fix #8641: "New like" emails for a liked comment were not sent ("Getting unknown property: Comment::user" in `MailContentEntry`)
+- Fix #8642: `ItemDrop::save()` always failed (call to the undefined `moveItemIndex()`, undeclared `$id`, broken sort order access, transaction left open when the index did not change); `ProfileHeader` crashed when no `user` was given instead of detecting the profile user from the controller
 - Fix #8636: A failed session write printed the database exception into the response, so a login by the "remember me" cookie failed with "headers already sent" and HTTP 500; the exception is now logged (Yii and PHP error log) instead
 - Fix #8622: Console `module/update`, `module/update-all`, `module/install` and `module/enable` failed the `requirements.php` check of modules depending on another module (e.g. "You must first install and enable the Clean Theme module." for Clean Theme Pro), as other modules are not loaded in these commands since 1.19.0. Module dependencies declared in `module.json` (`humhub.modules`, optionally with a `minVersion`) are now checked from metadata only when a module is installed, updated or enabled (new `ModuleDependencyService`), and registered before `requirements.php` is evaluated; `module/update-all` checks them against the versions installed after all updates, skips updates whose dependencies stay unmet and updates dependencies first
 - Enh #8614: People cards: Twig template for additional card details via `'user' => ['peopleCardDetailsTemplate' => ...]` (one HTML block with the profile fields as variables, e.g. with links and `<br>`), shown below the selected "Information 1-3" fields
@@ -34,6 +58,9 @@ HumHub Changelog
 - Fix #8623: Secrets from `.env` (e.g. `HUMHUB_CONFIG__*` passwords, keys, tokens, DSNs) were written in plain text to `app.log` and the `logging` table via the `$_SERVER` dump; values are now masked by key name (PASS, SECRET, KEY, TOKEN, DSN, AUTH, COOKIE, ...)
 - Fix #8624: Stored XSS via the user display name in the friendship confirmation dialog
 - Fix #8627: The full-size profile image overlay now closes on the browser Back button instead of staying open over the previous page
+- Fix #8638: The default Content-Security-Policy blocked fonts embedded as `data:` URIs (e.g. the icon font of the Calendar module), which logged a violation in the browser console; `data:` is now allowed in `font-src`
+- Fix #8639: Dates containing non-ASCII characters (e.g. the `fa-IR` and `ar` locales) were rejected as invalid on PHP 8.4+, because `IntlDateFormatter::parse()` now returns the position in bytes while Yii compares it with the character count
+- Fix #8643: Permission states fixed for a group (e.g. "Manage content" for registered users) could be changed by a manually crafted request to the permission settings
 
 1.19.0 (October 12, 2026)
 -------------------------
