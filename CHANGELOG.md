@@ -1,11 +1,39 @@
 HumHub Changelog
 ================
 
-1.19.4 (Unreleased)
+1.19.5 (Unreleased)
 -------------------
 
+- Fix #8753: Logins via LDAP or an auth client and the LDAP sync no longer scan the whole `user_auth` table, which holds the LDAP identities since 1.19
+- Fix #8751: `ContentContainerModuleManager::isEnabled()` still reported the previous state right after `enable()` or `disable()` on the same container
+- Fix #8740: Password recovery page redirected to the login page in maintenance mode
+- Fix #8743: Followers with a hidden profile (or not visible to the commenter or author) were not notified of new comments, or of new content in a followed space or profile, unless the author was an admin or user manager
+- Fix: The current space's image in the space chooser button sat above the centre of the top bar, and the caret beside it moved after a page change
+
+1.19.4 (November 9, 2026)
+-------------------------
+
+> This release also fixes [security](https://github.com/humhub/humhub/security/advisories) issues.
+
+- Fix GHSA-wp2f-p7f6-j3rw: Validate the message categories requested from the JavaScript translations endpoint
+- Fix #8718: A message without translation in a JavaScript translation category was rendered empty instead of in English
+- Fix #8711: The mobile app settings (`/mobile-app/get-settings`) failed with a `TypeError` after the mobile settings were saved with no whitelisted URL, as the empty field was stored as an empty string instead of an empty list
 - Fix #8663: `module/remove` did nothing for an enabled module whose files are missing (e.g. no compatible version to reinstall); its enabled flag is now removed from the database
 - Fix #8665: The latest HumHub version (About page, update notification) was only refreshed after flushing the cache
+- Fix #8667: `Undefined property: Application::$user` when the `user` component sets a `returnUrl` (regression of #8657)
+- Fix #8668: Member search actions in the group administration now check access to the requested group
+- Fix #8686: LDAP user filter without enclosing parentheses (e.g. `objectClass=person`) caused a "Bad search filter" error on login
+- Fix #8669: Auth clients allowed only for login (e.g. JWT, password, SAML) cleared or overwrote the LDAP-managed profile fields of LDAP users; new `BaseUserSource::isAttributeSyncAllowed()` decides whether an auth client may write managed attributes; LDAP accepts only its own client
+- Fix #8676: In the login page, if the login form is disabled, and an SSO button is displayed, don't show the "Or continue with" separator (same behavior as the modal login page)
+- Fix #8671: The service worker is served at `/sw-js` instead of `/sw.js`, as web servers serving `.js` URLs as static files answered it with a 404 (the old URL still works when it reaches HumHub)
+- Fix #8689: `module/update-all` reported all modules as up to date when the HumHub API could not be reached or was disabled; it now fails with an error
+- Fix #8694: Wide gap between icon and caret of dropdown buttons (e.g. space header settings menu)
+- Fix #8693: Accent border of the main menu flashed black on hover
+- Fix #8708: Browser hung in an endless loop when the top menu overflowed without its "Menu" sub dropdown
+- Fix #8706: Wide avatar column in the space member request widget
+- Fix #8712: Secrets were not masked in the context dump of log targets configured outside the core (e.g. an `EmailTarget`)
+- Fix #8705: Browser autofill of the password field in the admin user edit form caused a "must be equal to Confirm new password" error on save
+- Fix GHSA-8fxv-7qxv-3x3r: Labels of top menu, footer menu and People heading button entries were not HTML-encoded
 
 1.19.3 (October 27, 2026)
 -------------------------
